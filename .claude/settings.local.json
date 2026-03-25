@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__wise__wise_profiles",
+      "mcp__wise__wise_balances",
+      "mcp__wise__wise_rates",
+      "mcp__wise__wise_statements"
+    ]
+  }
+}
