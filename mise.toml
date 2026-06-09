@@ -138,7 +138,13 @@ run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
 [tasks."secrets:set-sandbox"]
 description = "Open the Wise SANDBOX token page, then store WISE_SANDBOX_API_TOKEN (prompts)"
 run = [
-  '''nu -c 'print "Sandbox token: https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"; start "https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"' ''',
+  '''nu -c '
+    print "The Wise SANDBOX is a SEPARATE environment — you CANNOT use your real Wise account.";
+    print "  1. Register a sandbox-only account: https://sandbox.transferwise.tech/register";
+    print "  2. Finish onboarding, then create a token at:";
+    print "     https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens";
+    start "https://sandbox.transferwise.tech/register"
+  ' ''',
   "fnox set WISE_API_TOKEN -p keychain --profile sandbox",
 ]
 

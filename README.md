@@ -82,9 +82,13 @@ mise run secrets:status       # ✓/✗ for all of the above (values never shown
 Auth is **either/or**: the API token alone covers everything for your own account;
 OAuth is only for partner / multi-user (PSD2) flows.
 
-Create a token at
-<https://wise.com/your-account/integrations-and-tools/api-tokens>
-(sandbox: <https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens>).
+Create a production token at
+<https://wise.com/your-account/integrations-and-tools/api-tokens>.
+
+**Sandbox is a separate environment** — you can't use your real Wise account. Register
+a sandbox-only account at <https://sandbox.transferwise.tech/register>, finish
+onboarding, then create a token under that account's
+*Integrations and tools → API tokens*.
 
 ## How it works
 
