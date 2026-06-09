@@ -209,8 +209,12 @@ run = [
 ]
 
 [tasks.smoke]
-description = "Smoke-test the setup: tools, spec, restish config, live prod+sandbox auth"
+description = "Verify setup: tools, spec, restish config (offline — no keychain, no prompts)"
 run = "nu scripts/smoke.nu"
+
+[tasks."smoke:auth"]
+description = "Also verify live prod+sandbox auth (READS the keychain — macOS may prompt)"
+run = "nu scripts/smoke.nu --auth"
 
 [tasks.test]
 description = "Run tests"
