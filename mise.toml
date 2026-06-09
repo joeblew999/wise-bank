@@ -145,7 +145,10 @@ run = [
     print "     https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens";
     start "https://sandbox.transferwise.tech/register"
   ' ''',
-  "fnox set WISE_API_TOKEN -p keychain --profile sandbox",
+  # --key-name is REQUIRED: it writes the token to the WISE_SANDBOX_API_TOKEN keychain
+  # item. Without it, fnox set rewrites the mapping to value=WISE_API_TOKEN and
+  # OVERWRITES the production token in the keychain.
+  "fnox set WISE_API_TOKEN -p keychain --profile sandbox --key-name WISE_SANDBOX_API_TOKEN",
 ]
 
 [tasks."secrets:check"]
