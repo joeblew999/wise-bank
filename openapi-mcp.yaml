@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PROVENANCE
+#   What : runs the published Wise REST API as an MCP server, straight from the spec.
+#   Tool : github.com/merzzzl/openapi-mcp-server (Go; runtime OpenAPI→MCP proxy).
+#          Chosen via `gh search repos "openapi mcp server" --language=go` (2026-06-09)
+#          because it reads a LOCAL spec file and forwards the client's Authorization
+#          header as upstream Bearer (no Python — matches our stack).
+#   Spec : docs/reference/wise-openapi-3.0.yaml — the normalized 3.0 form of Wise's
+#          official OpenAPI 3.1 bundle (docs.wise.com/_bundle/api-reference/index.yaml).
+#          Regenerate: `mise run wise:spec:normalize`. See docs/connectrpc.md §0.
+#   Run  : `mise run mcp:openapi`  → MCP on :9090/wise/mcp (+ /sse)
+#   Auth : the MCP client sends the Wise token in the Authorization header; this proxy
+#          forwards it as `Bearer <token>` upstream. Nothing is stored here.
+# ─────────────────────────────────────────────────────────────────────────────
+port: ":9090"
+enable_toon: false
+telemetry:
+  endpoint: ""        # disabled -> logs to stdout
+  insecure: true
+servers:
+  - name: wise
+    schema_url: "docs/reference/wise-openapi-3.0.yaml"
+    base_url: "https://api.wise.com"          # production (swap to sandbox host to test)
+    # WHOLE API: every operation becomes an MCP tool (~239). Write/SCA ops are exposed
+    # too but funding/conversion need request signing (see docs/connectrpc.md). To scope
+    # down, replace the regex (e.g. "^/v1/rates|^/v2/profiles").
+    allow:
+      - methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+        regex: ".*"
+    block: []

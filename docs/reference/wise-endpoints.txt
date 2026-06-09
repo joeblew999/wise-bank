@@ -1,0 +1,242 @@
+# Wise API endpoint index — 239 operations across 198 paths
+# Source: docs/reference/wise-openapi.yaml (official Wise bundle). Regenerate: mise run wise:spec
+
+DELETE /v1/application/users/{userId}/phone-numbers/{phoneNumberId} — Delete Phone Number
+DELETE /v1/profiles/{profileId}/update-window — Close an update window
+DELETE /v1/users/{userId}/facemap/enrol — Delete FaceMap
+DELETE /v1/users/{userId}/partner-device-fingerprints/{deviceFingerprintId} — Delete Device Fingerprint
+DELETE /v1/users/{userId}/pin — Delete PIN
+DELETE /v2/accounts/{accountId} — Deactivate a recipient account
+DELETE /v2/profiles/{profileId}/device-fingerprints/{deviceFingerprintId} — Delete a device fingerprint
+DELETE /v2/profiles/{profileId}/facemaps — Delete a facemap
+DELETE /v2/profiles/{profileId}/pin — Delete a PIN
+DELETE /v3/applications/{clientKey}/subscriptions/{subscriptionId} — Delete Application Webhook Subscription
+DELETE /v3/profiles/{profileId}/subscriptions/{subscriptionId} — Delete Profile Webhook Subscription
+DELETE /v3/spend/applications/{clientId}/spend-controls/rules/{ruleId} — Delete an authorisation rule
+DELETE /v4/profiles/{profileId}/balances/{balanceId} — Remove a Balance Account
+DELETE /v4/spend/profiles/{profileId}/cards/{cardToken}/spend-limits/{granularity} — Delete card limits
+GET    /twcard-data/v1/clientSideEncryption/fetchEncryptingKey — Fetch RSA encryption key
+GET    /v1/accounts — List recipient accounts (v1)
+GET    /v1/accounts/{accountId} — Get account by ID (v1)
+GET    /v1/address-requirements — Get Address Requirements
+GET    /v1/addresses — List Addresses for a Profile
+GET    /v1/addresses/{addressId} — Retrieve an Address by ID
+GET    /v1/application/users/{userId}/phone-numbers — List Phone Numbers
+GET    /v1/auth/jose/playground/jwe — Playground JWE for GET requests
+GET    /v1/auth/jose/response/public-keys — Get Wise JOSE public key
+GET    /v1/borderless-accounts — Get account balance (v1)
+GET    /v1/cases/{caseId} — Retrieve a partner case by ID
+GET    /v1/cases/{caseId}/comments — Retrieve partner case comments
+GET    /v1/currencies — Get all currencies allowed for transfers
+GET    /v1/delivery-estimates/{transferId} — Get the delivery estimate for a transfer
+GET    /v1/facetec/public-key — Get FaceTec public key
+GET    /v1/identity/one-time-token/status — Get OTT status (v1)
+GET    /v1/me — Retrieve current user by token
+GET    /v1/one-time-token/status — Get status of a one time token
+GET    /v1/profiles/{profileId}/account-details — Retrieve bank account details
+GET    /v1/profiles/{profileId}/account-details-orders — List bank account detail orders (v1)
+GET    /v1/profiles/{profileId}/activities — List Activities for a Profile
+GET    /v1/profiles/{profileId}/balance-capacity — Retrieve Deposit Limits
+GET    /v1/profiles/{profileId}/balance-statements/{balanceId}/statement.json — Get Balance Statement
+GET    /v1/profiles/{profileId}/batch-groups/{batchGroupId}/payment-initiations/{paymentInitiationId} — Retrieve a payment initiation
+GET    /v1/profiles/{profileId}/direct-debit-accounts — Retrieve all direct debit accounts
+GET    /v1/profiles/{profileId}/directors — List business directors
+GET    /v1/profiles/{profileId}/extension-requirements — Retrieve profile extension requirements
+GET    /v1/profiles/{profileId}/extensions — Retrieve profile extensions
+GET    /v1/profiles/{profileId}/kyc-reviews — Get all KYC Reviews for a profile
+GET    /v1/profiles/{profileId}/kyc-reviews/{kycReviewId} — Get KYC Review by ID (V1)
+GET    /v1/profiles/{profileId}/third-party-transfers/{transferId} — Get a third party transfer by ID (V1)
+GET    /v1/profiles/{profileId}/total-funds/{currency} — Get Total Funds
+GET    /v1/profiles/{profileId}/transfers/{transferId}/deposit-details/bank-transfer — Retrieve bank transfer deposit details
+GET    /v1/profiles/{profileId}/ubos — List business ultimate owners
+GET    /v1/quotes/{quoteId}/account-requirements — Retrieve recipient account requirements dynamically
+GET    /v1/rates — Retrieve current rates
+GET    /v1/simulation/transfers/{transferId}/{status} — Simulate transfer state change
+GET    /v1/transfers — List transfers
+GET    /v1/transfers/{transferId} — Get a transfer by ID
+GET    /v1/transfers/{transferId}/documents/noc — Get a non objection certificate (INR)
+GET    /v1/transfers/{transferId}/payments — List completed payments
+GET    /v1/transfers/{transferId}/receipt.pdf — Get a transfer receipt
+GET    /v1/transfers/{transferId}/us-combined-receipt.pdf — Get a US combined disclosure receipt
+GET    /v1/users/{userId} — Retrieve a user by ID
+GET    /v1/users/{userId}/contact-email — Retrieve a contact email address
+GET    /v1/users/{userId}/partner-device-fingerprints — List Device Fingerprints
+GET    /v2/accounts — List recipient accounts
+GET    /v2/accounts/{accountId} — Get account by ID
+GET    /v2/borderless-accounts-configuration/profiles/{profileId}/available-currencies — Retrieve available currencies
+GET    /v2/borderless-accounts-configuration/profiles/{profileId}/payin-currencies — Retrieve payin currencies
+GET    /v2/profiles — List profiles for a user account
+GET    /v2/profiles/{profileId} — Retrieve a profile by ID
+GET    /v2/profiles/{profileId}/kyc-reviews/{kycReviewId} — Get KYC Review by ID
+GET    /v2/profiles/{profileId}/third-party-transfers/{transferId} — Get a third party transfer by ID
+GET    /v2/simulation/profiles/{profileId}/kyc-reviews/{kycReviewId}/requirements — List KYC review requirements
+GET    /v2/simulation/spend/profiles/{profileId}/cards/{cardToken}/transactions — List simulated card transactions
+GET    /v2/transfers/{transferId}/invoices/bankingpartner — Get payout information
+GET    /v3/applications/{clientKey}/subscriptions — List Application Webhook Subscriptions
+GET    /v3/applications/{clientKey}/subscriptions/{subscriptionId} — Get Application Webhook Subscription
+GET    /v3/comparisons — Request a comparison quote (V3)
+GET    /v3/profiles/{profileId}/account-details-orders — List bank account detail orders
+GET    /v3/profiles/{profileId}/batch-groups/{batchGroupId} — Retrieve a batch group
+GET    /v3/profiles/{profileId}/business-profile/business-representative — Retrieve business representative
+GET    /v3/profiles/{profileId}/quotes/{quoteId} — Retrieve a quote by ID
+GET    /v3/profiles/{profileId}/subscriptions — List Profile Webhook Subscriptions
+GET    /v3/profiles/{profileId}/subscriptions/{subscriptionId} — Get Profile Webhook Subscription
+GET    /v3/profiles/{profileId}/verification-status/required-evidences — Required Evidences
+GET    /v3/spend/applications/{clientId}/spend-controls/rules — List all authorisation rules
+GET    /v3/spend/applications/{clientId}/spend-controls/rules/applied — List applied authorisation rules
+GET    /v3/spend/profiles/{profileId}/card-orders — Retrieve all card orders
+GET    /v3/spend/profiles/{profileId}/card-orders/availability — Retrieve available card programs
+GET    /v3/spend/profiles/{profileId}/card-orders/{cardOrderId} — Retrieve a card order
+GET    /v3/spend/profiles/{profileId}/card-orders/{cardOrderId}/requirements — Retrieve card order requirements
+GET    /v3/spend/profiles/{profileId}/cards — List cards for a profile
+GET    /v3/spend/profiles/{profileId}/cards/transactions/{transactionId} — Get card transaction (V3)
+GET    /v3/spend/profiles/{profileId}/cards/{cardToken} — Get card details
+GET    /v3/spend/profiles/{profileId}/cards/{cardToken}/production — Retrieve card production status
+GET    /v3/spend/profiles/{profileId}/cards/{cardToken}/spending-permissions — Get card spending permissions
+GET    /v3/spend/profiles/{profileId}/dispute-form/reasons — Retrieve dispute reasons
+GET    /v3/spend/profiles/{profileId}/disputes — List disputes
+GET    /v3/spend/profiles/{profileId}/disputes/{disputeId} — Get dispute
+GET    /v3/spend/profiles/{profileId}/spending-limits — Retrieve profile spend limits
+GET    /v4/comparisons — Request a comparison quote
+GET    /v4/multi-currency-account/eligibility — Retrieve multi currency account eligibility
+GET    /v4/profiles/{profileId}/balances — List Balances for a Profile
+GET    /v4/profiles/{profileId}/balances/{balanceId} — Retrieve a Balance by ID
+GET    /v4/profiles/{profileId}/multi-currency-account — Retrieve multi currency account for a profile
+GET    /v4/spend/profiles/{profileId}/cards/transactions/{transactionId} — Get card transaction
+GET    /v4/spend/profiles/{profileId}/cards/{cardToken}/spend-limits — Retrieve card limits
+GET    /v4/spend/profiles/{profileId}/cards/{cardToken}/transactions — List card transactions
+GET    /v4/spend/profiles/{profileId}/spend-limits — Retrieve profile limits
+PATCH  /v1/profiles/{profileId}/kyc-reviews/{kycReviewId} — Update KYC Review to get a Hosted KYC link
+PATCH  /v2/accounts/{accountId}/confirmations — Accept confirmation outcomes
+PATCH  /v3/profiles/{profileId}/batch-groups/{batchGroupId} — Update batch group status
+PATCH  /v3/profiles/{profileId}/quotes/{quoteId} — Update a quote
+PATCH  /v3/spend/profiles/{profileId}/cards/{cardToken}/spending-permissions — Update a single card permission
+PATCH  /v4/spend/profiles/{profileId}/cards/{cardToken}/spend-limits — Create or update card limits
+PATCH  /v4/spend/profiles/{profileId}/cards/{cardToken}/spending-permissions — Bulk update card permissions
+PATCH  /v4/spend/profiles/{profileId}/spend-limits — Update profile limits
+POST   /oauth/token — Create an OAuth token
+POST   /twcard-data/v1/push-provisioning/encrypted-payload/apple-pay — Push Provisioning for Apple Pay
+POST   /twcard-data/v1/push-provisioning/encrypted-payload/google-pay — Push provisioning for Google Pay
+POST   /twcard-data/v1/sensitive-card-data/details — Get sensitive card details
+POST   /twcard-data/v1/sensitive-card-data/pin — Get card PIN
+POST   /twcard-data/v1/sensitive-card-data/preset-pin — Set card PIN
+POST   /v1/accounts — Create a recipient account
+POST   /v1/accounts/{accountId}/quotes/{quoteId}/compatibility — Check account and quote compatibility (v1)
+POST   /v1/address-requirements — Get Address Requirements (with context)
+POST   /v1/addresses — Create or Update an Address
+POST   /v1/application/users/{userId}/phone-numbers — Create Phone Number
+POST   /v1/auth/jose/playground/jwe — Playground JWE for POST requests
+POST   /v1/auth/jose/playground/jwe-direct-encryption — Playground JWE for direct encryption
+POST   /v1/auth/jose/playground/jws — Playground JWS
+POST   /v1/auth/jose/playground/jwsjwe — Playground JWS+JWE
+POST   /v1/auth/jose/request/public-keys — Add a new client public key
+POST   /v1/borderless-accounts/{borderlessAccountId}/conversions — Convert currencies between balances (v1)
+POST   /v1/cases — Create a partner case
+POST   /v1/one-time-token/facemap/verify — Verify FaceMap
+POST   /v1/one-time-token/partner-device-fingerprint/verify — Verify Device Fingerprint
+POST   /v1/one-time-token/pin/verify — Verify PIN
+POST   /v1/one-time-token/sms/trigger — Trigger SMS Challenge
+POST   /v1/one-time-token/sms/verify — Verify SMS Challenge
+POST   /v1/one-time-token/voice/trigger — Trigger Voice Challenge
+POST   /v1/one-time-token/voice/verify — Verify Voice Challenge
+POST   /v1/one-time-token/whatsapp/trigger — Trigger WhatsApp Challenge
+POST   /v1/one-time-token/whatsapp/verify — Verify WhatsApp Challenge
+POST   /v1/profiles — Create a profile (V1)
+POST   /v1/profiles/{profileId}/account-details-orders — Create bank account details order
+POST   /v1/profiles/{profileId}/account-details/payments/{paymentId}/returns — Create payment return
+POST   /v1/profiles/{profileId}/balances/hold-limit-breach — List hold limit breaches
+POST   /v1/profiles/{profileId}/balances/hold-limit-breach/{holdLimitBreachId} — Close a hold limit breach
+POST   /v1/profiles/{profileId}/batch-groups/{batchGroupId}/payment-initiations — Fund a batch group via direct debit
+POST   /v1/profiles/{profileId}/direct-debit-accounts — Create a direct debit account
+POST   /v1/profiles/{profileId}/directors — Create business directors
+POST   /v1/profiles/{profileId}/excess-money-account — Add an Excess Money Account
+POST   /v1/profiles/{profileId}/extension-requirements — Update profile extensions dynamically
+POST   /v1/profiles/{profileId}/extensions — Submit profile extensions
+POST   /v1/profiles/{profileId}/kyc-reviews — Create a KYC Review
+POST   /v1/profiles/{profileId}/partner-licence-transfers — Create a partner licence transfer
+POST   /v1/profiles/{profileId}/payin-sessions/{payinSessionId}/paynow — Create PayNow payment details
+POST   /v1/profiles/{profileId}/ubos — Create business ultimate owners
+POST   /v1/profiles/{profileId}/update-window — Open an update window
+POST   /v1/profiles/{profileId}/verification-documents — Create an identification document
+POST   /v1/quotes/{quoteId}/account-requirements — Retrieve recipient account requirements dynamically (step-by-step)
+POST   /v1/settlements — Send a settlement journal
+POST   /v1/simulation/balance/topup — Simulate a balance top-up
+POST   /v1/simulation/profiles/{profileId}/bank-transactions/import — Simulate incoming bank transfer
+POST   /v1/simulation/profiles/{profileId}/swift-in — Simulate incoming Swift payment
+POST   /v1/simulation/profiles/{profileId}/verifications — Simulate verification for a profile
+POST   /v1/simulation/spend/profiles/{profileId}/cards/{cardToken}/production — Simulate card production state change
+POST   /v1/simulation/spend/profiles/{profileId}/cards/{cardToken}/transactions/clearing — Simulate a card transaction clearing
+POST   /v1/simulation/spend/profiles/{profileId}/cards/{cardToken}/transactions/reversal — Simulate a card transaction reversal
+POST   /v1/simulation/transfers/{transferId}/payout-failure — Simulate transfer payout failure
+POST   /v1/simulation/verify-profile — Simulate verification for all profiles
+POST   /v1/transfer-requirements — Validate transfer requirements
+POST   /v1/transfers — Create a transfer
+POST   /v1/user/claim-account — Generate a claim account code
+POST   /v1/user/facemap/enrol — Enrol FaceMap
+POST   /v1/user/partner-device-fingerprints — Create Device Fingerprint
+POST   /v1/user/pin — Create PIN
+POST   /v1/user/signup/registration_code — Create a user with a registration code
+POST   /v1/users/exists — Check if user exists
+POST   /v2/accounts/{accountId}/quotes/{quoteId}/compatibility — Check account and quote compatibility
+POST   /v2/profiles/business-profile — Create a business profile
+POST   /v2/profiles/personal-profile — Create a personal profile
+POST   /v2/profiles/{profileId}/balance-movements — Convert or Move Money Between Balances
+POST   /v2/profiles/{profileId}/contacts — Create a contact from an identifier
+POST   /v2/profiles/{profileId}/device-fingerprints — Create a device fingerprint
+POST   /v2/profiles/{profileId}/device-fingerprints/verify — Verify a device fingerprint
+POST   /v2/profiles/{profileId}/facemaps — Create a facemap
+POST   /v2/profiles/{profileId}/facemaps/verify — Verify a facemap
+POST   /v2/profiles/{profileId}/kyc-requirements/{requirementKey} — Submit a KYC Requirement
+POST   /v2/profiles/{profileId}/pin — Create a PIN
+POST   /v2/profiles/{profileId}/pin/verify — Verify a PIN
+POST   /v2/profiles/{profileId}/sca-sessions/authorise — Create a SCA session
+POST   /v2/profiles/{profileId}/third-party-transfers — Create a third party transfer
+POST   /v2/simulation/profiles/{profileId}/kyc-reviews/{kycReviewId}/requirements/add — Simulate adding new requirement
+POST   /v2/simulation/profiles/{profileId}/kyc-reviews/{kycReviewId}/requirements/submit — Simulate requirement submission
+POST   /v2/simulation/profiles/{profileId}/kyc-reviews/{kycReviewId}/verify — Simulate verifying a KYC review
+POST   /v2/simulation/spend/profiles/{profileId}/cards/{cardToken}/transactions/authorisation — Simulate a card transaction authorisation
+POST   /v3/applications/{clientKey}/subscriptions — Create Application Webhook Subscription
+POST   /v3/applications/{clientKey}/subscriptions/{subscriptionId}/test-notifications — Test Application Webhook Subscription
+POST   /v3/profiles/business-profile — Create a business profile (V3)
+POST   /v3/profiles/{profileId}/additional-verification/upload-evidences — Upload Evidences (v3)
+POST   /v3/profiles/{profileId}/bank-details — Create multiple bank account details
+POST   /v3/profiles/{profileId}/batch-groups — Create a batch group
+POST   /v3/profiles/{profileId}/batch-groups/{batchGroupId}/transfers — Create a batch group transfer
+POST   /v3/profiles/{profileId}/batch-payments/{batchGroupId}/payments — Fund a batch group
+POST   /v3/profiles/{profileId}/quotes — Create a quote (authenticated)
+POST   /v3/profiles/{profileId}/subscriptions — Create Profile Webhook Subscription
+POST   /v3/profiles/{profileId}/transfers/{transferId}/payments — Fund a transfer
+POST   /v3/profiles/{profileId}/verification-status/bank-transfer — Check profile verification status
+POST   /v3/profiles/{profileId}/verification-status/upload-document — Upload Document
+POST   /v3/quotes — Create a quote (unauthenticated)
+POST   /v3/spend/address/validate — Validate an address
+POST   /v3/spend/applications/{clientId}/spend-controls/rules — Add a new authorisation rule
+POST   /v3/spend/applications/{clientId}/spend-controls/rules/apply — Apply an authorisation rule
+POST   /v3/spend/applications/{clientId}/spend-controls/rules/unapply — Unapply an authorisation rule
+POST   /v3/spend/profiles/{profileId}/3dsecure/challenge-result — Inform challenge result
+POST   /v3/spend/profiles/{profileId}/card-orders — Create a card order
+POST   /v3/spend/profiles/{profileId}/cards/{cardToken}/payment-tokens — List payment tokens for a card
+POST   /v3/spend/profiles/{profileId}/cards/{cardToken}/payment-tokens/{paymentTokenUniqueReference}/activation — Manual provisioning payment token activation
+POST   /v3/spend/profiles/{profileId}/cards/{cardToken}/reset-pin-count — Reset PIN count
+POST   /v3/spend/profiles/{profileId}/dispute-form/file — Upload dispute file (v3)
+POST   /v3/spend/profiles/{profileId}/dispute-form/flows/step/{scheme}/{reason} — Dispute dynamic flow entry point
+POST   /v3/spend/profiles/{profileId}/dispute-form/flows/{scheme}/{reason} — Submit dispute
+POST   /v4/profiles/{profileId}/balances — Create a Balance Account
+POST   /v4/spend/profiles/{profileId}/dispute-form/file — Upload dispute file
+POST   /v5/profiles/{profileId}/additional-verification/upload-evidences — Upload Evidences
+PUT    /v1/application/users/{userId}/phone-numbers/{phoneNumberId} — Update Phone Number
+PUT    /v1/cases/{caseId}/comments — Add a partner case comment
+PUT    /v1/profiles — Update a profile (V1)
+PUT    /v1/profiles/{profileId}/directors — Update business directors
+PUT    /v1/profiles/{profileId}/ubos — Update business ultimate owners
+PUT    /v1/profiles/{profileId}/verification-documents — Update an identification document
+PUT    /v1/transfers/{transferId}/cancel — Cancel a transfer
+PUT    /v1/users/{userId}/contact-email — Set a contact email address
+PUT    /v2/profiles/{profileId}/business-profile — Update a business profile
+PUT    /v2/profiles/{profileId}/personal-profile — Update a personal profile
+PUT    /v3/profiles/{profileId}/business-profile/business-representative — Update business representative
+PUT    /v3/spend/profiles/{profileId}/card-orders/{cardOrderId}/status — Update card order status
+PUT    /v3/spend/profiles/{profileId}/cards/{cardToken}/phone-number — Update phone number
+PUT    /v3/spend/profiles/{profileId}/cards/{cardToken}/production — Produce a card
+PUT    /v3/spend/profiles/{profileId}/cards/{cardToken}/status — Update card status
+PUT    /v3/spend/profiles/{profileId}/disputes/{disputeId}/status — Withdraw dispute

@@ -16,6 +16,8 @@
 go = "1.26.1"
 # nushell drives OS-neutral file ops + URL opening in tasks; pinned so CI gets it.
 "github:nushell/nushell" = "latest"
+# node powers the OpenAPI 3.1->3.0 normalize pipeline (downconvert + js-yaml).
+node = "24.16.0"
 # (fnox is a ubiquitous tool from the global mise config — not pinned per-repo.)
 
 [env]
@@ -81,6 +83,28 @@ run = [
   "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
   "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
 ]
+
+[tasks."wise:spec"]
+description = "Download the official Wise OpenAPI spec + regenerate the local endpoint index"
+run = [
+  "curl -sSL https://docs.wise.com/_bundle/api-reference/index.yaml -o docs/reference/wise-openapi.yaml",
+  "nu scripts/gen-endpoint-index.nu",
+]
+
+[tasks."wise:spec:normalize"]
+description = "Normalize the 3.1 spec to a 3.0 variant strict OpenAPI tools accept (downconvert + fixups)"
+sources = ["docs/reference/wise-openapi.yaml", "scripts/normalize-spec.cjs"]
+outputs = ["docs/reference/wise-openapi-3.0.yaml"]
+run = [
+  "npx -y @apiture/openapi-down-convert --input docs/reference/wise-openapi.yaml --output docs/reference/wise-openapi-3.0.yaml",
+  "npm install --no-save --no-audit --no-fund js-yaml@4",
+  "node scripts/normalize-spec.cjs",
+]
+
+[tasks."mcp:openapi"]
+description = "Run the published Wise REST API AS-IS as an MCP server (off the normalized local spec)"
+depends = ["wise:spec:normalize"]
+run = "go run github.com/merzzzl/openapi-mcp-server/cmd/app@latest -config openapi-mcp.yaml"
 
 [tasks.test]
 description = "Run tests"
