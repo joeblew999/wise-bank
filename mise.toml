@@ -208,6 +208,10 @@ run = [
   "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
 ]
 
+[tasks.smoke]
+description = "Smoke-test the setup: tools, spec, restish config, live prod+sandbox auth"
+run = "nu scripts/smoke.nu"
+
 [tasks.test]
 description = "Run tests"
 run = "go test ./..."
