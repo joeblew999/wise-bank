@@ -162,7 +162,13 @@ mise tasks            # dev-facing tasks
 mise run mcp:openapi  # ▶ the WHOLE Wise API (239 ops) as MCP, off the local spec
 mise run mcp:go       # hand-written Go MCP server (curated subset)
 
-# CLI commands (need WISE_API_TOKEN)
+# the WHOLE Wise API as a CLI (restish, ~205 commands generated from the spec)
+mise run api:setup                 # one-time: register the API with restish
+mise run api -- --help             # list every command
+mise run api -- rate-get --source=USD --target=EUR
+mise run api:sandbox -- rate-get --source=USD --target=EUR   # against sandbox
+
+# Go convenience CLI — a CURATED SUBSET (not the whole API; that's api:* above)
 mise run cli:rates        # Get exchange rates
 mise run cli:profiles     # List profiles
 mise run cli:balances     # Show balances
@@ -172,6 +178,10 @@ mise run cli:rate-history -- -from EUR -to USD -days 7
 
 # web GUI
 mise run serve:web    # Start web dashboard (port 8080)
+
+# secrets / sandbox
+mise run secrets:set          # store the production API token
+mise run secrets:set-sandbox  # store the SANDBOX token (for write/SCA testing)
 
 # spec + build/test
 mise run spec:fetch   # refresh the official OpenAPI + endpoint index

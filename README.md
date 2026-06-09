@@ -14,14 +14,17 @@ mise tasks            # list available tasks
 mise run secrets:open # open the Wise pages to create your API token / OAuth app
 mise run secrets:set  # store WISE_API_TOKEN in the keychain (hidden prompt)
 
-# run the WHOLE Wise API (239 ops) as an MCP server — straight from the spec
-mise run mcp:openapi
+# the WHOLE Wise API (239 ops), straight from the spec — pick your interface:
+mise run mcp:openapi               # as an MCP server (for Claude / agents)
+mise run api:setup                 # register the CLI (once)
+mise run api -- rate-get --source=USD --target=EUR   # as a CLI (~205 commands)
+mise run api:sandbox -- ...        # same, against the Wise sandbox
 
-# or use the Go SDK directly
+# or the Go SDK / curated convenience CLI
 mise run build:all    # build binaries into ./.bin
 mise run test
 mise run serve:web    # web dashboard on :8080 (uses the keychain token)
-mise run cli:rates    # any API command, e.g. exchange rates
+mise run cli:rates    # curated subset, e.g. exchange rates
 ```
 
 Secrets never live in this repo — `fnox` injects them from the keychain at run

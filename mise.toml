@@ -21,6 +21,8 @@ go = "1.26.1"
 "github:nushell/nushell" = "latest"
 # node powers the OpenAPI 3.1->3.0 normalize pipeline (downconvert + js-yaml).
 node = "24.16.0"
+# restish turns the OpenAPI into a CLI where every Wise endpoint is a command (api:*).
+"go:github.com/rest-sh/restish" = "latest"
 # (fnox is a ubiquitous tool from the global mise config — not pinned per-repo.)
 
 [env]
@@ -54,6 +56,27 @@ run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-server -port 
 description = "OPTIONAL partner mode: web GUI with OAuth instead of the API token"
 hide = true
 run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-server -port {{ env.WISE_PORT }}"
+
+# ============== api:  the WHOLE Wise API as a CLI (restish + spec) =============
+# Every endpoint is a command. cli:* (below) is a hand-written convenience subset;
+# api:* is the full ~205-command surface generated from the OpenAPI.
+
+[tasks."api:setup"]
+description = "Register the whole Wise API with restish (run once after install)"
+depends = ["spec:normalize"]
+run = "nu scripts/setup-restish.nu"
+
+[tasks.api]
+description = "Whole Wise API CLI (prod). e.g. mise run api -- rate-get --source=USD --target=EUR ; mise run api -- --help"
+run = "fnox exec --profile wise --no-defaults -- restish wise"
+
+[tasks."api:sandbox"]
+description = "Whole Wise API CLI against the SANDBOX. e.g. mise run api:sandbox -- rate-get --source=USD --target=EUR"
+run = "fnox exec --profile sandbox --no-defaults -- restish wise --rsh-server https://api.sandbox.transferwise.tech"
+
+[tasks."api:list"]
+description = "List every Wise API command restish generated from the spec"
+run = "restish wise --help"
 
 # ===================== cli:  one-shot Wise calls (Go CLI) =====================
 
@@ -105,6 +128,13 @@ nu -c '
 description = "Open the Wise pages, then store WISE_API_TOKEN in the OS keychain (prompts)"
 depends = ["secrets:open"]
 run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
+
+[tasks."secrets:set-sandbox"]
+description = "Open the Wise SANDBOX token page, then store WISE_SANDBOX_API_TOKEN (prompts)"
+run = [
+  '''nu -c 'print "Sandbox token: https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"; start "https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"' ''',
+  "fnox set WISE_API_TOKEN -p keychain --profile sandbox",
+]
 
 [tasks."secrets:check"]
 description = "Verify the wise secrets are configured"
