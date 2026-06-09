@@ -1,16 +1,19 @@
 # mise.toml — tool manager + task runner for wise-bank
 #
-# mise is the ONLY task runner here (the old xplat/Taskfile/process-compose setup
-# was removed). Every task shells out to `go`/`nu`/`fnox` directly, so the same
-# `mise run <task>` commands work locally and in CI.
+# Tasks are namespaced by function. `mise tasks` shows the dev-facing set; plumbing
+# (deps, build variants, CI, advanced auth) is `hide = true` — still runnable, just
+# not listed. The headline:  mise run mcp:openapi  → the whole Wise API as MCP.
 #
-# Secrets: stored in the OS keychain via fnox (see fnox.toml). Tasks that hit the
-# Wise API run under `fnox exec`, which injects WISE_* from the keychain.
-# First run? ->  mise run secrets:open   then   mise run secrets:set
+#   mcp:*      run Wise as MCP (openapi = whole API off the spec; go = hand-written)
+#   serve:*    web GUI dashboard
+#   cli:*      one-shot Wise calls via the Go CLI
+#   secrets:*  credentials (fnox + OS keychain)
+#   spec:*     vendor + normalize the official OpenAPI
+#   build:*    compile the Go binaries
+#   test       run tests
 #
-# AUTH: WISE_API_TOKEN is all you need for the CLI, MCP, and web dashboard on your
-# own account. OAuth (WISE_CLIENT_ID/SECRET) is an OPTIONAL *alternative* — only for
-# partner / multi-user mode (onboarding other people's accounts, PSD2). Not both.
+# AUTH: WISE_API_TOKEN is all you need for your own account. OAuth (WISE_CLIENT_ID/
+# SECRET) is an OPTIONAL alternative — partner / multi-user only (the `:oauth` tasks).
 
 [tools]
 go = "1.26.1"
@@ -25,7 +28,60 @@ GOWORK = "off"
 WISE_PORT = "{{ env.WISE_PORT | default(value='8080') }}"
 BIN = "{{ config_root }}/.bin"
 
-# ============================ secrets (fnox + keychain) ============================
+# ============================ mcp:  run Wise as MCP ============================
+
+[tasks."mcp:openapi"]
+description = "▶ Run the WHOLE Wise API (239 ops) as an MCP server, off the local spec"
+depends = ["spec:normalize"]
+run = "go run github.com/merzzzl/openapi-mcp-server/cmd/app@latest -config openapi-mcp.yaml"
+
+[tasks."mcp:go"]
+description = "Run the hand-written Go MCP server (curated subset of tools)"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-mcp"
+
+[tasks."mcp:oauth"]
+description = "OPTIONAL partner mode: Go MCP server with OAuth instead of the API token"
+hide = true
+run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-mcp"
+
+# ============================ serve:  web dashboard ============================
+
+[tasks."serve:web"]
+description = "Start the web GUI dashboard (API-token auth)"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-server -port {{ env.WISE_PORT }}"
+
+[tasks."serve:oauth"]
+description = "OPTIONAL partner mode: web GUI with OAuth instead of the API token"
+hide = true
+run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-server -port {{ env.WISE_PORT }}"
+
+# ===================== cli:  one-shot Wise calls (Go CLI) =====================
+
+[tasks."cli:rates"]
+description = "Get exchange rates from the Wise API"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rates"
+
+[tasks."cli:profiles"]
+description = "List Wise profiles"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd profiles"
+
+[tasks."cli:balances"]
+description = "Show account balances"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd balances"
+
+[tasks."cli:statements"]
+description = "Show transaction history (last 30 days)"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd statements"
+
+[tasks."cli:quote"]
+description = "Get a quote, e.g. mise run cli:quote -- -from USD -to EUR -amount 100"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd quote"
+
+[tasks."cli:rate-history"]
+description = "Rate history, e.g. mise run cli:rate-history -- -from EUR -to USD -days 7"
+run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rate-history"
+
+# ===================== secrets:  fnox + OS keychain ===========================
 
 [tasks."secrets:open"]
 description = "Open the Wise pages where you create the API token / OAuth app"
@@ -36,63 +92,59 @@ nu -c '
   print "  • Production API token  : https://wise.com/your-account/integrations-and-tools/api-tokens";
   print "  • Sandbox API token     : https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens";
   print "";
-  print "OPTIONAL — only for partner / multi-user OAuth mode (NOT needed otherwise):";
+  print "OPTIONAL — partner / multi-user OAuth mode only (NOT needed otherwise):";
   print "  • OAuth / user tokens   : https://docs.wise.com/api-reference/user-tokens";
   print "  • Auth & security guide : https://docs.wise.com/guides/developer/auth-and-security";
   print "";
-  print "Store the token with: mise run secrets:set   (OAuth, only if needed: secrets:set-oauth)";
+  print "Then store it: mise run secrets:set";
   start "https://wise.com/your-account/integrations-and-tools/api-tokens"
 '
 '''
 
 [tasks."secrets:set"]
-description = "Open Wise pages, then store WISE_API_TOKEN in the OS keychain (prompts)"
+description = "Open the Wise pages, then store WISE_API_TOKEN in the OS keychain (prompts)"
 depends = ["secrets:open"]
 run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
-
-[tasks."secrets:set-token"]
-description = "Store just WISE_API_TOKEN in the OS keychain (prompts, hidden input)"
-run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
-
-[tasks."secrets:set-oauth"]
-description = "OPTIONAL (partner/multi-user only): store WISE_CLIENT_ID + WISE_CLIENT_SECRET"
-run = [
-  "fnox set WISE_CLIENT_ID -p keychain --profile oauth",
-  "fnox set WISE_CLIENT_SECRET -p keychain --profile oauth",
-]
 
 [tasks."secrets:check"]
 description = "Verify the wise secrets are configured"
 run = "fnox check --profile wise --no-defaults"
 
+[tasks."secrets:set-token"]
+description = "Store just WISE_API_TOKEN in the OS keychain (no browser)"
+hide = true
+run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
+
+[tasks."secrets:set-oauth"]
+description = "OPTIONAL (partner/multi-user only): store WISE_CLIENT_ID + WISE_CLIENT_SECRET"
+hide = true
+run = [
+  "fnox set WISE_CLIENT_ID -p keychain --profile oauth",
+  "fnox set WISE_CLIENT_SECRET -p keychain --profile oauth",
+]
+
 [tasks."secrets:list"]
 description = "List the wise secret names (values stay in the keychain)"
+hide = true
 run = "fnox ls --profile wise --no-defaults"
 
 [tasks."secrets:doctor"]
 description = "fnox diagnostics (providers, keychain access, config)"
+hide = true
 run = "fnox doctor"
 
-# ================================ build / test ================================
+# ===================== spec:  vendor + normalize OpenAPI ======================
 
-[tasks.build]
-description = "Build all binaries into ./.bin"
-run = [
-  "nu -c 'mkdir {{ env.BIN }}'",
-  "go build -o {{ env.BIN }}/wise-cli ./cmd/wise-cli",
-  "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
-  "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
-]
-
-[tasks."wise:spec"]
-description = "Download the official Wise OpenAPI spec + regenerate the local endpoint index"
+[tasks."spec:fetch"]
+description = "Download the official Wise OpenAPI spec + regenerate the endpoint index"
 run = [
   "curl -sSL https://docs.wise.com/_bundle/api-reference/index.yaml -o docs/reference/wise-openapi.yaml",
   "nu scripts/gen-endpoint-index.nu",
 ]
 
-[tasks."wise:spec:normalize"]
-description = "Normalize the 3.1 spec to a 3.0 variant strict OpenAPI tools accept (downconvert + fixups)"
+[tasks."spec:normalize"]
+description = "Normalize 3.1 -> 3.0 so strict OpenAPI tools accept it (dep of mcp:openapi)"
+hide = true
 sources = ["docs/reference/wise-openapi.yaml", "scripts/normalize-spec.cjs"]
 outputs = ["docs/reference/wise-openapi-3.0.yaml"]
 run = [
@@ -101,80 +153,43 @@ run = [
   "node scripts/normalize-spec.cjs",
 ]
 
-[tasks."mcp:openapi"]
-description = "Run the published Wise REST API AS-IS as an MCP server (off the normalized local spec)"
-depends = ["wise:spec:normalize"]
-run = "go run github.com/merzzzl/openapi-mcp-server/cmd/app@latest -config openapi-mcp.yaml"
+# ============================ build / test ====================================
+
+[tasks."build:all"]
+description = "Build all Go binaries into ./.bin"
+run = [
+  "nu -c 'mkdir {{ env.BIN }}'",
+  "go build -o {{ env.BIN }}/wise-cli ./cmd/wise-cli",
+  "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
+  "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
+]
 
 [tasks.test]
 description = "Run tests"
 run = "go test ./..."
 
-[tasks.lint]
-description = "Run go vet"
-run = "go vet ./..."
-
-[tasks.clean]
-description = "Remove built binaries"
-run = "nu -c 'rm -rf {{ env.BIN }}'"
-
-# ===================== CLI commands (need WISE_API_TOKEN) =====================
-# Wrapped in `fnox exec` so the keychain token is injected at run time.
-
-[tasks.rates]
-description = "Get exchange rates from the Wise API"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rates"
-
-[tasks.profiles]
-description = "List Wise profiles"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd profiles"
-
-[tasks.balances]
-description = "Show account balances"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd balances"
-
-[tasks.statements]
-description = "Show transaction history (last 30 days)"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd statements"
-
-[tasks.quote]
-description = "Get a quote, e.g. mise run quote -- -from USD -to EUR -amount 100"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd quote"
-
-[tasks.rate-history]
-description = "Rate history, e.g. mise run rate-history -- -from EUR -to USD -days 7"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rate-history"
-
-# ================================== servers ==================================
-
-[tasks.serve]
-description = "Start the web GUI dashboard (API-token auth)"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-server -port {{ env.WISE_PORT }}"
-
-[tasks.mcp]
-description = "Run the MCP server for Claude integration (API-token auth)"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-mcp"
-
-[tasks."serve:oauth"]
-description = "OPTIONAL partner mode: web GUI with OAuth instead of the API token"
-run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-server -port {{ env.WISE_PORT }}"
-
-[tasks."mcp:oauth"]
-description = "OPTIONAL partner mode: MCP server with OAuth instead of the API token"
-run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-mcp"
-
-# build single binaries into ./.bin
-
-[tasks."mcp-build"]
-description = "Build just the MCP server binary into ./.bin"
+[tasks."build:mcp"]
+description = "Build just the Go MCP server binary into ./.bin"
+hide = true
 run = [
   "nu -c 'mkdir {{ env.BIN }}'",
   "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
 ]
 
-[tasks."serve-build"]
+[tasks."build:server"]
 description = "Build just the web server binary into ./.bin"
+hide = true
 run = [
   "nu -c 'mkdir {{ env.BIN }}'",
   "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
 ]
+
+[tasks.lint]
+description = "Run go vet"
+hide = true
+run = "go vet ./..."
+
+[tasks.clean]
+description = "Remove built binaries"
+hide = true
+run = "nu -c 'rm -rf {{ env.BIN }}'"

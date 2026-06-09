@@ -10,7 +10,7 @@ So we don't re-scrape Wise's (truncating, JS-heavy) doc site every time.
 ## Refresh both
 
 ```
-mise run wise:spec      # re-download the spec + regenerate the index
+mise run spec:fetch      # re-download the spec + regenerate the index
 ```
 
 (Internally: `curl` the official URL → `scripts/gen-endpoint-index.nu`.)

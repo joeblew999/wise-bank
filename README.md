@@ -7,17 +7,21 @@ Go client for the [Wise API](https://docs.wise.com/api-reference), with a CLI, a
 - [mise](https://mise.jdx.dev) — manages tools (Go, nushell) and runs all tasks
 
 ```bash
-mise install          # install pinned tools (Go, nushell)
+mise install          # install pinned tools (Go, nushell, node)
 mise tasks            # list available tasks
 
 # secrets — stored in the OS keychain via fnox (see fnox.toml)
 mise run secrets:open # open the Wise pages to create your API token / OAuth app
 mise run secrets:set  # store WISE_API_TOKEN in the keychain (hidden prompt)
 
-mise run build        # build binaries into ./.bin
+# run the WHOLE Wise API (239 ops) as an MCP server — straight from the spec
+mise run mcp:openapi
+
+# or use the Go SDK directly
+mise run build:all    # build binaries into ./.bin
 mise run test
-mise run serve        # web dashboard on :8080 (uses the keychain token)
-mise run rates        # any API command, e.g. exchange rates
+mise run serve:web    # web dashboard on :8080 (uses the keychain token)
+mise run cli:rates    # any API command, e.g. exchange rates
 ```
 
 Secrets never live in this repo — `fnox` injects them from the keychain at run

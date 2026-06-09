@@ -51,7 +51,7 @@ if (!doc.info) doc.info = {};
 if (!doc.info.version) doc.info.version = "1.0.0";
 
 const header = [
-  "# GENERATED — do not edit by hand. Regenerate: mise run wise:spec:normalize",
+  "# GENERATED — do not edit by hand. Regenerate: mise run spec:normalize",
   "# Source : docs/reference/wise-openapi.yaml (official Wise OpenAPI 3.1 bundle,",
   "#          https://docs.wise.com/_bundle/api-reference/index.yaml)",
   "# Pipeline: @apiture/openapi-down-convert (3.1->3.0) + scripts/normalize-spec.cjs",
