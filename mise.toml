@@ -119,12 +119,17 @@ nu -c '
   print "  • OAuth / user tokens   : https://docs.wise.com/api-reference/user-tokens";
   print "  • Auth & security guide : https://docs.wise.com/guides/developer/auth-and-security";
   print "";
+  print "Full URL map: mise run secrets:urls   (incl. public-keys, sandbox, docs)";
   print "Store:  mise run secrets:set  (prod) · secrets:set-sandbox · secrets:set-oauth";
   print "Check:  mise run secrets:status";
   start "https://wise.com/your-account/integrations-and-tools/api-tokens";
   start "https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"
 '
 '''
+
+[tasks."secrets:urls"]
+description = "Print every Wise URL (which page gives which token/info) — the canonical map"
+run = "nu scripts/wise-urls.nu"
 
 [tasks."secrets:status"]
 description = "Show which Wise secrets are set (prod / sandbox / oauth) — values never shown"
