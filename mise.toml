@@ -37,15 +37,6 @@ description = "▶ Run the WHOLE Wise API (239 ops) as an MCP server, off the lo
 depends = ["spec:normalize"]
 run = "go run github.com/merzzzl/openapi-mcp-server/cmd/app@latest -config openapi-mcp.yaml"
 
-[tasks."mcp:go"]
-description = "Run the hand-written Go MCP server (curated subset of tools)"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-mcp"
-
-[tasks."mcp:oauth"]
-description = "OPTIONAL partner mode: Go MCP server with OAuth instead of the API token"
-hide = true
-run = "fnox exec --profile oauth --no-defaults -- go run ./cmd/wise-mcp"
-
 # ============================ serve:  web dashboard ============================
 
 [tasks."serve:web"]
@@ -78,31 +69,6 @@ run = "fnox exec --profile sandbox --no-defaults -- restish wise-sandbox"
 description = "List every Wise API command restish generated from the spec"
 run = "restish wise --help"
 
-# ===================== cli:  one-shot Wise calls (Go CLI) =====================
-
-[tasks."cli:rates"]
-description = "Get exchange rates from the Wise API"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rates"
-
-[tasks."cli:profiles"]
-description = "List Wise profiles"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd profiles"
-
-[tasks."cli:balances"]
-description = "Show account balances"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd balances"
-
-[tasks."cli:statements"]
-description = "Show transaction history (last 30 days)"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd statements"
-
-[tasks."cli:quote"]
-description = "Get a quote, e.g. mise run cli:quote -- -from USD -to EUR -amount 100"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd quote"
-
-[tasks."cli:rate-history"]
-description = "Rate history, e.g. mise run cli:rate-history -- -from EUR -to USD -days 7"
-run = "fnox exec --profile wise --no-defaults -- go run ./cmd/wise-cli -cmd rate-history"
 
 # ===================== secrets:  fnox + OS keychain ===========================
 
@@ -205,11 +171,9 @@ run = [
 # ============================ build / test ====================================
 
 [tasks."build:all"]
-description = "Build all Go binaries into ./.bin"
+description = "Build the Go web-server binary into ./.bin"
 run = [
   "nu -c 'mkdir {{ env.BIN }}'",
-  "go build -o {{ env.BIN }}/wise-cli ./cmd/wise-cli",
-  "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
   "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
 ]
 
@@ -224,22 +188,6 @@ run = "nu scripts/smoke.nu --auth"
 [tasks.test]
 description = "Run tests"
 run = "go test ./..."
-
-[tasks."build:mcp"]
-description = "Build just the Go MCP server binary into ./.bin"
-hide = true
-run = [
-  "nu -c 'mkdir {{ env.BIN }}'",
-  "go build -o {{ env.BIN }}/wise-mcp ./cmd/wise-mcp",
-]
-
-[tasks."build:server"]
-description = "Build just the web server binary into ./.bin"
-hide = true
-run = [
-  "nu -c 'mkdir {{ env.BIN }}'",
-  "go build -o {{ env.BIN }}/wise-server ./cmd/wise-server",
-]
 
 [tasks.lint]
 description = "Run go vet"

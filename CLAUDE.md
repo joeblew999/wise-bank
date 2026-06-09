@@ -1,6 +1,8 @@
 # wise-bank - Wise Banking Platform
 
-Go client for the [Wise API](https://docs.wise.com/api-reference) with CLI, MCP server, and web GUI.
+Toolkit for the [Wise API](https://docs.wise.com/api-reference): the whole API as a
+spec-driven CLI (`api:*`, restish) and MCP server (`mcp:openapi`), plus a hand-written
+Go library that powers a web GUI.
 
 ## Tooling
 
@@ -24,35 +26,37 @@ wise-bank/
 ├── transfers.go      # Transfers API
 ├── rates.go          # Exchange rates API
 ├── balances.go       # Balances API
-├── commands/         # Shared business logic (DRY)
+├── commands/         # Shared business logic (DRY) — used by the web server
 │   └── commands.go
 ├── cmd/
-│   ├── wise-cli/     # CLI tool
-│   ├── wise-mcp/     # MCP server for Claude
-│   └── wise-server/  # Web GUI with Via
-├── mise.toml         # Tools (Go, nushell) + task definitions
-├── API.md            # API coverage documentation
+│   └── wise-server/  # Web GUI with Via (the one Go frontend kept)
+├── docs/reference/   # vendored official OpenAPI spec + endpoint index
+├── scripts/          # nushell/node helpers (spec normalize, smoke, urls, ...)
+├── openapi-mcp.yaml  # config for the whole-API MCP server
+├── mise.toml         # Tools + task definitions
+├── API.md            # Go SDK coverage matrix
 └── README.md         # Quick start
 ```
 
 ## Architecture
 
-Three layers, fan-out to three frontends. Everything below `commands` is reusable;
-everything above it is just formatting for a medium.
+Two ways to reach the whole Wise API, both off the vendored OpenAPI spec, plus a
+hand-written Go library that powers the web GUI.
 
 ```
-   frontends    wise-cli        wise-mcp         wise-server      (cmd/*)
-   (thin)       terminal        Claude/MCP       web GUI + SSE
-                    \               |               /
-                     \              |              /
-   shared logic  ── commands package (DRY) ──  returns plain result structs
-   (no I/O fmt)         GetRates / GetProfiles / GetBalances / ...
-                                    |
-   core library  ────────── package wise ──────────  Client + per-domain Services
-                     client.go (one generic Request) + profiles/quotes/rates/...
-                                    |
-                              Wise REST API
+   WHOLE API (spec-driven, no hand-written code):
+     restish  → `mise run api`          (CLI, ~205 commands)
+     merzzzl  → `mise run mcp:openapi`  (MCP, 239 tools)
+        both read docs/reference/wise-openapi.yaml
+
+   Go library (hand-written) → powers:
+     cmd/wise-server → `mise run serve:web`  (web GUI, Via + SSE)
+        wise-server → commands/ (DRY) → package wise → Wise REST API
 ```
+
+Note: the hand-written Go **CLI and MCP server were removed** — the spec-driven
+`api:*` and `mcp:openapi` cover the entire API, so they were redundant. The Go
+library + `commands/` are kept because the web GUI uses them.
 
 ### Layer 1 — core library (root package `wise`)
 - `client.go` — a single generic `Request(ctx, method, path, query, body, result)`:
@@ -70,22 +74,19 @@ everything above it is just formatting for a medium.
 
 ### Layer 2 — `commands/`
 Shared business logic. Calls the library and returns flat, presentation-free result
-structs (`RateResult`, `ProfileResult`, `BalanceResult`, ...). This is the DRY seam
-that keeps the three frontends from duplicating API logic.
+structs (`RateResult`, `ProfileResult`, `BalanceResult`, ...). The web server formats
+these for the browser.
 
-### Layer 3 — frontends (`cmd/*`), each just formats `commands` output
-- **wise-cli** — prints results to the terminal
-- **wise-mcp** — registers MCP tools (`wise_rates`, `wise_profiles`, ...) via
-  `mark3labs/mcp-go`, serves over stdio for Claude
-- **wise-server** — web dashboard (Via framework, SSE for live updates); the only
-  frontend that supports the OAuth path
+### Layer 3 — frontend: `cmd/wise-server`
+Web dashboard (Via framework, SSE for live updates); supports both the API-token and
+OAuth paths. The former Go CLI (`wise-cli`) and Go MCP server (`wise-mcp`) were removed
+in favour of the spec-driven `api:*` (restish) and `mcp:openapi`.
 
-### Code generation
-**None.** This is a hand-written SDK — no `go:generate`, no OpenAPI/Swagger codegen,
-no `// DO NOT EDIT`. Adding a Wise endpoint = hand-write a method on the relevant
-service (and a `commands` helper + frontend formatting if it should be user-facing).
-Wise does publish an OpenAPI spec, so a generated client is possible, but the
-deliberate choice here is hand-written for clean ergonomics over full coverage.
+### Whole-API access is spec-driven (not hand-written)
+`api:*` (restish) and `mcp:openapi` read the vendored OpenAPI and expose the entire
+API with zero per-endpoint code. The Go library above is hand-written and intentionally
+covers only what the web GUI needs — see `docs/design.md` for the design + decision
+log, and `docs/reference/` for the spec.
 
 ## Authentication
 
@@ -158,55 +159,39 @@ Tasks are namespaced; `mise tasks` shows the dev-facing set, plumbing is hidden
 ```bash
 mise tasks            # dev-facing tasks
 
-# run Wise as MCP
-mise run mcp:openapi  # ▶ the WHOLE Wise API (239 ops) as MCP, off the local spec
-mise run mcp:go       # hand-written Go MCP server (curated subset)
-
-# the WHOLE Wise API as a CLI (restish, ~205 commands generated from the spec)
-mise run api:setup                 # one-time: register the API with restish
-mise run api -- --help             # list every command
+# the WHOLE Wise API, from the spec (no hand-written code)
+mise run mcp:openapi               # as MCP — 239 tools
+mise run api:setup                 # one-time: register the CLI with restish
+mise run api -- --help             # list every command (~205)
 mise run api -- rate-get --source=USD --target=EUR
 mise run api:sandbox -- rate-get --source=USD --target=EUR   # against sandbox
 
-# Go convenience CLI — a CURATED SUBSET (not the whole API; that's api:* above)
-mise run cli:rates        # Get exchange rates
-mise run cli:profiles     # List profiles
-mise run cli:balances     # Show balances
-mise run cli:statements   # Transaction history
-mise run cli:quote -- -from USD -to EUR -amount 100
-mise run cli:rate-history -- -from EUR -to USD -days 7
-
-# web GUI
-mise run serve:web    # Start web dashboard (port 8080)
+# web GUI (Go)
+mise run serve:web    # web dashboard on :8080
 
 # secrets / sandbox
+mise run secrets:urls         # every Wise URL (which page gives which thing)
 mise run secrets:set          # store the production API token
-mise run secrets:set-sandbox  # store the SANDBOX token (for write/SCA testing)
+mise run secrets:set-sandbox  # store the SANDBOX token
+mise run secrets:status       # which secrets are set (prod/sandbox/oauth)
 
-# spec + build/test
+# spec + build/test/verify
 mise run spec:fetch   # refresh the official OpenAPI + endpoint index
-mise run build:all    # Build all Go binaries into ./.bin
-mise run test         # Run tests
+mise run build:all    # build the wise-server binary into ./.bin
+mise run test         # Go tests
+mise run smoke        # verify setup (offline); smoke:auth adds live token checks
 
-# hidden (still runnable): spec:normalize, build:mcp, build:server, lint, clean,
-#   mcp:oauth, serve:oauth, secrets:set-token, secrets:set-oauth, secrets:list, secrets:doctor
+# hidden (still runnable): spec:normalize, lint, clean, serve:oauth,
+#   secrets:set-token, secrets:set-oauth, secrets:list, secrets:doctor
 ```
 
-## CLI Help
+## Whole-API CLI / MCP (spec-driven)
 
 ```bash
-./wise-cli -h                        # General help
-./wise-cli -cmd help rate-history    # Help for specific command
+mise run api -- --help                              # every Wise command (~205)
+mise run api -- rate-get --source=USD --target=EUR  # any endpoint
+mise run mcp:openapi                                 # all 239 ops as MCP tools
 ```
-
-## MCP Server Tools
-
-- `wise_rates` - Get exchange rates between currency pairs
-- `wise_profiles` - List all Wise profiles
-- `wise_balances` - Show account balances
-- `wise_statements` - Get transaction history
-- `wise_quote` - Get currency conversion quotes
-- `wise_rate_history` - Get historical exchange rates
 
 ## Web GUI Features
 
