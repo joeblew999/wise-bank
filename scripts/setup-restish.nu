@@ -17,15 +17,17 @@ let cfgfile = ($cfgdir | path join "apis.json")
 let spec = ($env.PWD | path join "docs/reference/wise-openapi-3.0.yaml")
 
 let existing = (if ($cfgfile | path exists) { open $cfgfile } else { {"$schema": "https://rest.sh/schemas/apis.json"} })
-let wise = {
-  base: "https://api.wise.com"
-  spec_files: [$spec]
-  profiles: { default: { headers: { authorization: "Bearer ${WISE_API_TOKEN}" } } }
-}
-$existing | upsert wise $wise | save -f $cfgfile
+let auth = { default: { headers: { authorization: "Bearer ${WISE_API_TOKEN}" } } }
+# Two registered APIs (prod + sandbox). They MUST be separate entries, not a runtime
+# --rsh-server override — restish only applies a profile's auth when the request host
+# matches the registered base, so an override host would send no Authorization header.
+let wise = { base: "https://api.wise.com", spec_files: [$spec], profiles: $auth }
+let wise_sandbox = { base: "https://api.sandbox.transferwise.tech", spec_files: [$spec], profiles: $auth }
+$existing | upsert wise $wise | upsert wise-sandbox $wise_sandbox | save -f $cfgfile
 
-print $"restish 'wise' API registered -> ($cfgfile)"
-print $"  spec    : ($spec)"
-print $"  base    : https://api.wise.com  \(sandbox: pass --rsh-server https://api.sandbox.transferwise.tech\)"
+print $"restish APIs registered -> ($cfgfile)"
+print $"  spec        : ($spec)"
+print $"  wise        : https://api.wise.com  \(mise run api\)"
+print $"  wise-sandbox: https://api.sandbox.transferwise.tech  \(mise run api:sandbox\)"
 print "Use it:  mise run api -- --help        # list all ~205 commands"
 print "         mise run api -- rate-get --source=USD --target=EUR"

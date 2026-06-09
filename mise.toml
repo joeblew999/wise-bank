@@ -72,7 +72,7 @@ run = "fnox exec --profile wise --no-defaults -- restish wise"
 
 [tasks."api:sandbox"]
 description = "Whole Wise API CLI against the SANDBOX. e.g. mise run api:sandbox -- rate-get --source=USD --target=EUR"
-run = "fnox exec --profile sandbox --no-defaults -- restish wise --rsh-server https://api.sandbox.transferwise.tech"
+run = "fnox exec --profile sandbox --no-defaults -- restish wise-sandbox"
 
 [tasks."api:list"]
 description = "List every Wise API command restish generated from the spec"
