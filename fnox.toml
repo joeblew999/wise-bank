@@ -1,0 +1,31 @@
+# fnox.toml — secrets contract for wise-bank
+#
+# Secret VALUES live once in the OS keychain (service "fnox"); this file only
+# NAMES them. The keychain item names are the cross-repo contract — don't rename
+# without updating every consumer.
+#
+#   mise run secrets:open    # open the Wise pages to create the credentials
+#   mise run secrets:set     # store the API token in the keychain (prompts)
+#   mise run secrets:check   # verify what's configured
+#
+# Tasks that hit the Wise API run under `fnox exec`, which injects these as env.
+
+[providers.keychain]
+type = "keychain"
+service = "fnox"
+
+# Secrets live in dedicated PROFILES (not top-level [secrets]) so the wise tasks
+# stay isolated from the global fnox config's shared secrets. Every wise task runs
+# `fnox exec --profile <p> --no-defaults`, injecting ONLY the WISE_* below.
+
+# --- wise profile: simple personal API-token auth (the default path) ---
+[profiles.wise.secrets]
+WISE_API_TOKEN= { provider = "keychain", value = "WISE_API_TOKEN" }
+
+# --- oauth profile: OPTIONAL, partner / multi-user (PSD2) auth ---
+# NOT needed for your own account — WISE_API_TOKEN above covers the CLI, MCP, and
+# web dashboard. Only set these if you build the partner/multi-user OAuth flow,
+# then run the `:oauth` task variants (e.g. `mise run serve:oauth`).
+[profiles.oauth.secrets]
+WISE_CLIENT_ID = { provider = "keychain", value = "WISE_CLIENT_ID" }
+WISE_CLIENT_SECRET = { provider = "keychain", value = "WISE_CLIENT_SECRET" }

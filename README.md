@@ -1,15 +1,33 @@
 # Wise API Go Client
 
-Go client for the [Wise API](https://docs.wise.com/api-reference).
+Go client for the [Wise API](https://docs.wise.com/api-reference), with a CLI, an MCP server, and a web GUI.
 
 ## Requirements
 
-- [xplat](https://github.com/joeblew999/xplat) - Task runner and process orchestration
-
-## Installation
+- [mise](https://mise.jdx.dev) — manages tools (Go, nushell) and runs all tasks
 
 ```bash
-go get github.com/joeblew999/investment/wise-api
+mise install          # install pinned tools (Go, nushell)
+mise tasks            # list available tasks
+
+# secrets — stored in the OS keychain via fnox (see fnox.toml)
+mise run secrets:open # open the Wise pages to create your API token / OAuth app
+mise run secrets:set  # store WISE_API_TOKEN in the keychain (hidden prompt)
+
+mise run build        # build binaries into ./.bin
+mise run test
+mise run serve        # web dashboard on :8080 (uses the keychain token)
+mise run rates        # any API command, e.g. exchange rates
+```
+
+Secrets never live in this repo — `fnox` injects them from the keychain at run
+time. For OAuth (partner / multi-user) use `mise run secrets:set-oauth` and the
+`:oauth` task variants. See [CLAUDE.md](CLAUDE.md) for the full task list.
+
+## Installation (as a library)
+
+```bash
+go get github.com/joeblew999/wise-bank
 ```
 
 ## Usage
@@ -22,7 +40,7 @@ import (
     "fmt"
     "os"
 
-    wise "github.com/joeblew999/investment/wise-api"
+    wise "github.com/joeblew999/wise-bank"
 )
 
 func main() {

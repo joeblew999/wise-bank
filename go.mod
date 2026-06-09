@@ -1,16 +1,18 @@
-module github.com/joeblew999/plat-wise
+module github.com/joeblew999/wise-bank
 
-go 1.25.4
+go 1.26.1
 
-require github.com/mark3labs/mcp-go v0.43.2
+require (
+	github.com/go-via/via v0.1.4
+	github.com/go-via/via-plugin-picocss v0.1.1
+	github.com/mark3labs/mcp-go v0.43.2
+)
 
 require (
 	github.com/CAFxX/httpcompression v0.0.9 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/go-via/via v0.1.4 // indirect
-	github.com/go-via/via-plugin-picocss v0.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/invopop/jsonschema v0.13.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
