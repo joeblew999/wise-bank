@@ -1,43 +1,47 @@
-# Wise API Go Client
+# wise-bank
 
-Go client for the [Wise API](https://docs.wise.com/api-reference), with a CLI, an MCP server, and a web GUI.
+A toolkit for the [Wise (TransferWise) API](https://docs.wise.com/api-reference).
 
-## Requirements
+The whole Wise API is **driven from Wise's official OpenAPI spec** (vendored locally),
+so you get the *entire* surface — as a CLI, as an MCP server, or as a web dashboard —
+plus a hand-written Go SDK for embedding. All tooling and secrets run through
+[mise](https://mise.jdx.dev) + [fnox](https://github.com/jdx/fnox).
 
-- [mise](https://mise.jdx.dev) — manages tools (Go, nushell) and runs all tasks
+## Quick start
 
 ```bash
-mise install          # install pinned tools (Go, nushell, node)
-mise tasks            # list available tasks
+mise install              # pinned tools: go, nushell, node, restish
+mise run secrets:set      # store your Wise API token in the OS keychain (hidden prompt)
+mise run secrets:status   # see which credentials are set (prod / sandbox / oauth)
 
-# secrets — stored in the OS keychain via fnox (see fnox.toml)
-mise run secrets:open # open the Wise pages to create your API token / OAuth app
-mise run secrets:set  # store WISE_API_TOKEN in the keychain (hidden prompt)
+mise tasks                # list everything
+```
 
-# the WHOLE Wise API (239 ops), straight from the spec — pick your interface:
-mise run mcp:openapi               # as an MCP server (for Claude / agents)
-mise run api:setup                 # register the CLI (once)
-mise run api -- rate-get --source=USD --target=EUR   # as a CLI (~205 commands)
-mise run api:sandbox -- ...        # same, against the Wise sandbox
+## Use the whole Wise API (from the spec)
 
-# or the Go SDK / curated convenience CLI
-mise run build:all    # build binaries into ./.bin
+| Interface | Command |
+|-----------|---------|
+| **CLI** (every endpoint, ~205 commands) | `mise run api:setup` then `mise run api -- rate-get --source=USD --target=EUR` |
+| ↳ list all commands | `mise run api -- --help` |
+| ↳ against the sandbox | `mise run api:sandbox -- rate-get --source=USD --target=EUR` |
+| **MCP server** (for Claude / agents) | `mise run mcp:openapi` → 239 tools on `:9090/wise/mcp` |
+| **Web dashboard** | `mise run serve:web` → `http://localhost:8080` |
+
+These need no hand-written code — they read `docs/reference/wise-openapi.yaml`
+(the official spec). Refresh it anytime with `mise run spec:fetch`.
+
+## Or use the Go SDK / curated CLI
+
+A hand-written Go library (`package wise`) with a small convenience CLI and MCP server:
+
+```bash
+mise run build:all    # build wise-cli, wise-mcp, wise-server into ./.bin
 mise run test
-mise run serve:web    # web dashboard on :8080 (uses the keychain token)
-mise run cli:rates    # curated subset, e.g. exchange rates
+mise run cli:rates    # curated subset: rates / profiles / balances / statements / quote / rate-history
+mise run mcp:go       # hand-written Go MCP server
 ```
 
-Secrets never live in this repo — `fnox` injects them from the keychain at run
-time. For OAuth (partner / multi-user) use `mise run secrets:set-oauth` and the
-`:oauth` task variants. See [CLAUDE.md](CLAUDE.md) for the full task list.
-
-## Installation (as a library)
-
-```bash
-go get github.com/joeblew999/wise-bank
-```
-
-## Usage
+As a library:
 
 ```go
 package main
@@ -51,43 +55,49 @@ import (
 )
 
 func main() {
-    // Create client (uses production by default)
-    client := wise.NewClient(os.Getenv("WISE_API_TOKEN"))
-
-    // Or use sandbox
-    // client := wise.NewClient(os.Getenv("WISE_API_TOKEN"), wise.WithSandbox())
-
+    client := wise.NewClient(os.Getenv("WISE_API_TOKEN")) // or wise.WithSandbox()
     ctx := context.Background()
 
-    // Get profiles
     profiles, _ := client.Profiles.List(ctx)
-    fmt.Printf("Profiles: %+v\n", profiles)
-
-    // Get exchange rate
     rate, _ := client.ExchangeRates.Get(ctx, wise.USD, wise.EUR)
-    fmt.Printf("USD/EUR: %f\n", rate.Rate)
-
-    // Get balances
-    balances, _ := client.Balances.List(ctx, profiles[0].ID, nil)
-    fmt.Printf("Balances: %+v\n", balances)
+    fmt.Printf("profiles=%+v  USD/EUR=%f\n", profiles, rate.Rate)
 }
 ```
 
-## Services
+`go get github.com/joeblew999/wise-bank`
 
-- **Profiles** - List, get, create personal/business profiles
-- **Quotes** - Create and manage transfer quotes
-- **Recipients** - Manage recipient accounts
-- **Transfers** - Create, list, cancel transfers
-- **ExchangeRates** - Get live and historical exchange rates
-- **Balances** - Multi-currency balance management
+## Secrets (fnox + OS keychain)
 
-## Environment Variables
+Credentials live in the OS keychain, never in the repo or a `.env`. Tasks that hit
+the API run under `fnox exec`, which injects them at run time.
 
 ```bash
-WISE_API_TOKEN=your-api-token
+mise run secrets:open         # open the Wise token pages (prod + sandbox)
+mise run secrets:set          # WISE_API_TOKEN        (production — required)
+mise run secrets:set-sandbox  # WISE_SANDBOX_API_TOKEN (write/SCA testing)
+mise run secrets:set-oauth    # WISE_CLIENT_ID/SECRET  (optional: partner/multi-user)
+mise run secrets:status       # ✓/✗ for all of the above (values never shown)
 ```
 
-## API Reference
+Auth is **either/or**: the API token alone covers everything for your own account;
+OAuth is only for partner / multi-user (PSD2) flows.
 
-https://docs.wise.com/api-reference
+Create a token at
+<https://wise.com/your-account/integrations-and-tools/api-tokens>
+(sandbox: <https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens>).
+
+## How it works
+
+- `docs/reference/wise-openapi.yaml` — Wise's **official OpenAPI 3.1 bundle**, vendored
+  verbatim. `docs/reference/wise-endpoints.txt` is a greppable index. `mise run spec:fetch`
+  refreshes both.
+- `mise run spec:normalize` produces a 3.0 variant that strict tools (restish, Go MCP
+  proxy) accept. See [`docs/connectrpc.md`](docs/connectrpc.md) for the full design,
+  codegen notes, and decision log.
+- Tasks are namespaced (`api:` `mcp:` `serve:` `cli:` `secrets:` `spec:` `build:`);
+  `mise tasks` shows the dev-facing set, plumbing is hidden. See [CLAUDE.md](CLAUDE.md).
+
+## Links
+
+- [Wise API reference](https://docs.wise.com/api-reference)
+- [Auth & security](https://docs.wise.com/guides/developer/auth-and-security)
