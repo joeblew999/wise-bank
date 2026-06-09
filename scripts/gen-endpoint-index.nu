@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 # Regenerate docs/reference/wise-endpoints.txt from the local OpenAPI spec.
-# Run via: mise run wise:spec   (which also re-downloads the spec first)
+# Run via: mise run spec:fetch   (which also re-downloads the spec first)
 
 let spec = (open docs/reference/wise-openapi.yaml)
 let methods = [get post put delete patch]
@@ -12,6 +12,6 @@ let rows = ($spec.paths | transpose path ops | each {|r|
   }
 } | flatten | sort)
 
-let header = $"# Wise API endpoint index — ($rows | length) operations across ($spec.paths | columns | length) paths(char nl)# Source: docs/reference/wise-openapi.yaml \(official Wise bundle\). Regenerate: mise run wise:spec(char nl)(char nl)"
+let header = $"# Wise API endpoint index — ($rows | length) operations across ($spec.paths | columns | length) paths(char nl)# Source: docs/reference/wise-openapi.yaml \(official Wise bundle\). Regenerate: mise run spec:fetch(char nl)(char nl)"
 $"($header)($rows | str join (char nl))(char nl)" | save -f docs/reference/wise-endpoints.txt
 print $"generated ($rows | length) operations -> docs/reference/wise-endpoints.txt"

@@ -7,7 +7,7 @@
 #          header as upstream Bearer (no Python — matches our stack).
 #   Spec : docs/reference/wise-openapi-3.0.yaml — the normalized 3.0 form of Wise's
 #          official OpenAPI 3.1 bundle (docs.wise.com/_bundle/api-reference/index.yaml).
-#          Regenerate: `mise run wise:spec:normalize`. See docs/connectrpc.md §0.
+#          Regenerate: `mise run spec:normalize`. See docs/connectrpc.md §0.
 #   Run  : `mise run mcp:openapi`  → MCP on :9090/wise/mcp (+ /sse)
 #   Auth : the MCP client sends the Wise token in the Authorization header; this proxy
 #          forwards it as `Bearer <token>` upstream. Nothing is stored here.

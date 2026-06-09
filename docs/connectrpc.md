@@ -26,7 +26,7 @@ exposed but funding/conversion need request signing).
 
 ### The real lesson: the spec needs **normalizing** for strict tools
 Wise publishes **OpenAPI 3.1**, but many Go tools (here: `kin-openapi`) are **3.0-only
-and strict**. Getting it to load took a reproducible pipeline (`mise run wise:spec:normalize`
+and strict**. Getting it to load took a reproducible pipeline (`mise run spec:normalize`
 → [`../scripts/normalize-spec.cjs`](../scripts/normalize-spec.cjs)):
 1. **3.1 → 3.0 downconvert** (`@apiture/openapi-down-convert`) — `exclusiveMinimum` bool vs number, etc.
 2. **fix leftover numeric `exclusiveMinimum/Maximum`** the converter misses.
@@ -81,7 +81,7 @@ the only artifact shared with the Rust service is the proto.
 | [`reference/README.md`](reference/README.md) | Provenance + refresh. |
 | [`../API.md`](../API.md) | Older hand-curated Go-coverage matrix. Where it disagrees with the spec, **trust the spec** (recipients=`/v2/accounts`, cards=`/v4/spend/...`). |
 
-Refresh everything: **`mise run wise:spec`** (curl official URL → regenerate index).
+Refresh everything: **`mise run spec:fetch`** (curl official URL → regenerate index).
 
 ---
 
@@ -127,7 +127,7 @@ The ecosystem direction is **proto → OpenAPI** (well supported: `protoc-gen-co
 ### Proposed mise tasks (to wire next)
 - `gen:client` — run the chosen OpenAPI→Rust generator over `reference/wise-openapi.yaml`
 - `proto:gen` — `buf generate` (Rust stubs + TS client)
-- `wise:spec` — already exists (refresh the upstream spec + index)
+- `spec:fetch` — already exists (refresh the upstream spec + index)
 
 ---
 

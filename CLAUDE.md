@@ -152,30 +152,34 @@ OAuth flow:
 
 ## Tasks
 
+Tasks are namespaced; `mise tasks` shows the dev-facing set, plumbing is hidden
+(`hide = true`, still runnable). `mise tasks --hidden` shows everything.
+
 ```bash
-mise tasks            # list everything
+mise tasks            # dev-facing tasks
+
+# run Wise as MCP
+mise run mcp:openapi  # ▶ the WHOLE Wise API (239 ops) as MCP, off the local spec
+mise run mcp:go       # hand-written Go MCP server (curated subset)
 
 # CLI commands (need WISE_API_TOKEN)
-mise run rates        # Get exchange rates
-mise run profiles     # List profiles
-mise run balances     # Show balances
-mise run statements   # Transaction history
-mise run quote -- -from USD -to EUR -amount 100
-mise run rate-history -- -from EUR -to USD -days 7
+mise run cli:rates        # Get exchange rates
+mise run cli:profiles     # List profiles
+mise run cli:balances     # Show balances
+mise run cli:statements   # Transaction history
+mise run cli:quote -- -from USD -to EUR -amount 100
+mise run cli:rate-history -- -from EUR -to USD -days 7
 
-# MCP server
-mise run mcp          # Run MCP server
-mise run mcp-build    # Build MCP binary into ./.bin
+# web GUI
+mise run serve:web    # Start web dashboard (port 8080)
 
-# Web GUI
-mise run serve        # Start web dashboard (port 8080)
-mise run serve-build  # Build web server binary into ./.bin
-
-# Build/Test
-mise run build        # Build all binaries into ./.bin
+# spec + build/test
+mise run spec:fetch   # refresh the official OpenAPI + endpoint index
+mise run build:all    # Build all Go binaries into ./.bin
 mise run test         # Run tests
-mise run lint         # go vet
-mise run clean        # Remove built binaries
+
+# hidden (still runnable): spec:normalize, build:mcp, build:server, lint, clean,
+#   mcp:oauth, serve:oauth, secrets:set-token, secrets:set-oauth, secrets:list, secrets:doctor
 ```
 
 ## CLI Help
