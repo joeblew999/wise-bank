@@ -39,9 +39,22 @@ Tradeoff: this loses validation fidelity (fine for a runtime proxy). A **3.1-nat
 lenient** tool (e.g. Stoplight **Prism** in `proxy` mode) would skip most of step 1–5
 but isn't MCP. SCA-gated ops (fund/convert) still need request signing regardless.
 
+### Whole API as a CLI — also wired ✅ PROVEN
+Same idea, different interface: **restish** turns the spec into a CLI where every
+endpoint is a command (~205 generated). Wired as `api:*`:
+```
+mise run api:setup                              # register the API with restish (once)
+mise run api -- rate-get --source=USD --target=EUR   # prod (verified live)
+mise run api:sandbox -- rate-get --source=USD --target=EUR   # sandbox
+```
+restish (like kin-openapi) needs the **normalized 3.0** spec — `api:setup` depends on
+`spec:normalize` and points restish at `reference/wise-openapi-3.0.yaml`. Auth: tasks
+run under `fnox exec`, restish expands `${WISE_API_TOKEN}` from the chosen profile
+(`wise` = prod, `sandbox` = sandbox). See `scripts/setup-restish.nu`.
+
 ### Other no-code consumers of the same spec
-`restish` (instant CLI), Prism (mock/validating proxy), Speakeasy/Fern/Stainless
-(typed SDKs + MCP). All point at `reference/wise-openapi.yaml` (or the 3.0 variant).
+Prism (mock/validating proxy), Speakeasy/Fern/Stainless (typed SDKs + MCP). All
+point at `reference/wise-openapi.yaml` (or the 3.0 variant).
 
 > **When do you still want the Rust ConnectRPC below?** Only if you want to *re-expose*
 > Wise as your own typed RPC surface (one contract → Rust + TS + GUI). To merely *use*

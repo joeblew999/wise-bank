@@ -18,9 +18,16 @@ service = "fnox"
 # stay isolated from the global fnox config's shared secrets. Every wise task runs
 # `fnox exec --profile <p> --no-defaults`, injecting ONLY the WISE_* below.
 
-# --- wise profile: simple personal API-token auth (the default path) ---
+# --- wise profile: production personal API-token auth (the default path) ---
 [profiles.wise.secrets]
-WISE_API_TOKEN= { provider = "keychain", value = "WISE_API_TOKEN" }
+WISE_API_TOKEN = { provider = "keychain", value = "WISE_API_TOKEN" }
+
+# --- sandbox profile: Wise sandbox token (api.sandbox.transferwise.tech) ---
+# Use for write/SCA ops so you never touch the real account. Same env var name
+# (WISE_API_TOKEN) but a SEPARATE keychain item, so prod + sandbox don't collide.
+# Store it: mise run secrets:set-sandbox
+[profiles.sandbox.secrets]
+WISE_API_TOKEN = { provider = "keychain", value = "WISE_SANDBOX_API_TOKEN" }
 
 # --- oauth profile: OPTIONAL, partner / multi-user (PSD2) auth ---
 # NOT needed for your own account — WISE_API_TOKEN above covers the CLI, MCP, and
