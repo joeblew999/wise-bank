@@ -52,13 +52,24 @@ restish (like kin-openapi) needs the **normalized 3.0** spec — `api:setup` dep
 run under `fnox exec`, restish expands `${WISE_API_TOKEN}` from the chosen profile
 (`wise` = prod, `sandbox` = sandbox). See `scripts/setup-restish.nu`.
 
-### Write / SCA ops — the known limit of the no-code path
-Some write endpoints (fund a transfer, convert a balance) require **Strong Customer
-Authentication**: a per-request `X-Signature` (RSA) signed with a key you register at
-`…/integrations-and-tools/api-tokens/public-keys/create` (sandbox: the same path under
-the sandbox account). **restish and the MCP proxy do NOT sign requests**, so SCA-gated
-calls fail through them — the non-SCA majority of the API works, the signed writes need
-a signing-capable client (the Go SDK, or a small signer wrapper). Tracked as future work.
+### Write / SCA ops — NOT API-accessible on personal accounts (PSD2)
+Wise has **removed request-signing / SCA for personal accounts** (PSD2 compliance).
+Straight from Wise's own public-keys page:
+
+> we no longer support signing API requests to complete strong customer authentication
+> on personal Wise accounts. You can no longer retrieve account statements or fund
+> payments using this method. It is still possible to create draft transfers using our
+> API and fund them from your multi-currency account using our website or mobile apps.
+
+So on a **personal account** the spec-driven tools cover **reads + draft writes**, but:
+- ❌ **balance statements** — not available via API
+- ❌ **funding transfers / converting balances** — not via API; fund draft transfers in
+  the Wise **web/mobile app**
+- ✅ **draft transfers, quotes, recipients, rates, profiles, balances (list)** — fine
+
+There is **no public key to register** on personal accounts, so the
+`…/api-tokens/public-keys/create` path is a dead end here. (restish/MCP can't sign
+anyway — now moot.) **Business accounts may still allow signing — TBD.**
 
 ### Verify the setup
 `mise run smoke` checks tools, spec, restish config, and **live prod + sandbox auth**
