@@ -1,5 +1,5 @@
 # Wise API endpoint index — 239 operations across 198 paths
-# Source: docs/reference/wise-openapi.yaml (official Wise bundle). Regenerate: mise run wise:spec
+# Source: docs/reference/wise-openapi.yaml (official Wise bundle). Regenerate: mise run spec:fetch
 
 DELETE /v1/application/users/{userId}/phone-numbers/{phoneNumberId} — Delete Phone Number
 DELETE /v1/profiles/{profileId}/update-window — Close an update window
