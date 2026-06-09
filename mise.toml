@@ -119,10 +119,16 @@ nu -c '
   print "  • OAuth / user tokens   : https://docs.wise.com/api-reference/user-tokens";
   print "  • Auth & security guide : https://docs.wise.com/guides/developer/auth-and-security";
   print "";
-  print "Then store it: mise run secrets:set";
-  start "https://wise.com/your-account/integrations-and-tools/api-tokens"
+  print "Store:  mise run secrets:set  (prod) · secrets:set-sandbox · secrets:set-oauth";
+  print "Check:  mise run secrets:status";
+  start "https://wise.com/your-account/integrations-and-tools/api-tokens";
+  start "https://sandbox.transferwise.tech/your-account/integrations-and-tools/api-tokens"
 '
 '''
+
+[tasks."secrets:status"]
+description = "Show which Wise secrets are set (prod / sandbox / oauth) — values never shown"
+run = "nu scripts/secrets-status.nu"
 
 [tasks."secrets:set"]
 description = "Open the Wise pages, then store WISE_API_TOKEN in the OS keychain (prompts)"
@@ -147,7 +153,6 @@ run = "fnox set WISE_API_TOKEN -p keychain --profile wise"
 
 [tasks."secrets:set-oauth"]
 description = "OPTIONAL (partner/multi-user only): store WISE_CLIENT_ID + WISE_CLIENT_SECRET"
-hide = true
 run = [
   "fnox set WISE_CLIENT_ID -p keychain --profile oauth",
   "fnox set WISE_CLIENT_SECRET -p keychain --profile oauth",
