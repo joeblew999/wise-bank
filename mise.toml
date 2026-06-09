@@ -15,6 +15,14 @@
 # AUTH: WISE_API_TOKEN is all you need for your own account. OAuth (WISE_CLIENT_ID/
 # SECRET) is an OPTIONAL alternative — partner / multi-user only (the `:oauth` tasks).
 
+# Shared mise task library from joeblew999/.github (by reference, pinned).
+# Brings the `ci`, `mise:*:bootstrap`, etc. tasks. Shape copied from .github-example.
+[task_config]
+includes = [
+  "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=v0.43.0",
+  "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=v0.43.0",
+]
+
 [tools]
 go = "1.26.1"
 # nushell drives OS-neutral file ops + URL opening in tasks; pinned so CI gets it.
@@ -184,6 +192,13 @@ run = "nu scripts/smoke.nu"
 [tasks."smoke:auth"]
 description = "Also verify live prod+sandbox auth (READS the keychain — macOS may prompt)"
 run = "nu scripts/smoke.nu --auth"
+
+# Local `ci` MERGES with the shared `ci` (ci:check-global + ci:check-nu) from .github,
+# so `mise run ci` runs the shared guards AND this repo's build/test/lint — same
+# locally and on the GitHub matrix.
+[tasks.ci]
+description = "CI: shared .github guards + this repo's build/test/lint"
+depends = ["build:all", "test", "lint"]
 
 [tasks.test]
 description = "Run tests"
