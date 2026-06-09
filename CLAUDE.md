@@ -12,6 +12,27 @@ This project uses [mise](https://mise.jdx.dev) for both tool management (Go, nus
 
 **Keep mise.toml in sync with the API** - When adding new API endpoints or commands, always add a corresponding `mise` task.
 
+## Upstream dependencies — raise issues, don't just work around
+
+When you hit a bug, gap, or surprising behaviour in something this repo **depends on**,
+**file an issue upstream** — don't silently absorb it. Then: keep a *minimal, commented*
+local workaround, link the issue from the code/commit + memory, and remove the workaround
+once it's fixed.
+
+This repo depends on (file issues at):
+- **joeblew999/.github** — shared mise task library + reusable CI workflows.
+  (e.g. [#50](https://github.com/joeblew999/.github/issues/50): `mise:repo:bootstrap`
+  hardcodes workflow refs to `@main`; workaround = hand-pin to our tag.)
+- **rest-sh/restish** — the whole-API CLI (`api:*`).
+- **merzzzl/openapi-mcp-server** — the whole-API MCP server (`mcp:openapi`).
+- **@apiture/openapi-down-convert** — the 3.1→3.0 step in `spec:normalize`.
+- **jdx/mise**, **jdx/fnox** — tool runner + secrets.
+- **Wise API / OpenAPI spec** (docs.wise.com) — report quirks via Wise support; note them
+  in `docs/design.md` (e.g. the PSD2 personal-account SCA removal).
+
+Rule of thumb: a local fix for someone else's bug is a *temporary* patch with a tracked
+issue, never the end state.
+
 ## Structure
 
 ```
