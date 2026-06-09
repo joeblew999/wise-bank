@@ -30,15 +30,13 @@ mise tasks                # list everything
 These need no hand-written code — they read `docs/reference/wise-openapi.yaml`
 (the official spec). Refresh it anytime with `mise run spec:fetch`.
 
-## Or use the Go SDK / curated CLI
+## Or embed the Go SDK
 
-A hand-written Go library (`package wise`) with a small convenience CLI and MCP server:
+A hand-written Go library (`package wise`) — also what powers the web dashboard:
 
 ```bash
-mise run build:all    # build wise-cli, wise-mcp, wise-server into ./.bin
+mise run build:all    # build the wise-server binary into ./.bin
 mise run test
-mise run cli:rates    # curated subset: rates / profiles / balances / statements / quote / rate-history
-mise run mcp:go       # hand-written Go MCP server
 ```
 
 As a library:
@@ -96,9 +94,9 @@ onboarding, then create a token under that account's
   verbatim. `docs/reference/wise-endpoints.txt` is a greppable index. `mise run spec:fetch`
   refreshes both.
 - `mise run spec:normalize` produces a 3.0 variant that strict tools (restish, Go MCP
-  proxy) accept. See [`docs/connectrpc.md`](docs/connectrpc.md) for the full design,
+  proxy) accept. See [`docs/design.md`](docs/design.md) for the full design,
   codegen notes, and decision log.
-- Tasks are namespaced (`api:` `mcp:` `serve:` `cli:` `secrets:` `spec:` `build:`);
+- Tasks are namespaced (`api:` `mcp:` `serve:` `secrets:` `spec:` `build:`);
   `mise tasks` shows the dev-facing set, plumbing is hidden. See [CLAUDE.md](CLAUDE.md).
 
 ## Links
