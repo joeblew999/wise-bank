@@ -52,6 +52,18 @@ restish (like kin-openapi) needs the **normalized 3.0** spec — `api:setup` dep
 run under `fnox exec`, restish expands `${WISE_API_TOKEN}` from the chosen profile
 (`wise` = prod, `sandbox` = sandbox). See `scripts/setup-restish.nu`.
 
+### Write / SCA ops — the known limit of the no-code path
+Some write endpoints (fund a transfer, convert a balance) require **Strong Customer
+Authentication**: a per-request `X-Signature` (RSA) signed with a key you register at
+`…/integrations-and-tools/api-tokens/public-keys/create` (sandbox: the same path under
+the sandbox account). **restish and the MCP proxy do NOT sign requests**, so SCA-gated
+calls fail through them — the non-SCA majority of the API works, the signed writes need
+a signing-capable client (the Go SDK, or a small signer wrapper). Tracked as future work.
+
+### Verify the setup
+`mise run smoke` checks tools, spec, restish config, and **live prod + sandbox auth**
+(it's what catches a broken/clobbered token). Run it after any secrets change.
+
 ### Other no-code consumers of the same spec
 Prism (mock/validating proxy), Speakeasy/Fern/Stainless (typed SDKs + MCP). All
 point at `reference/wise-openapi.yaml` (or the 3.0 variant).
