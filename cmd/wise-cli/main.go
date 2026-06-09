@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 
-	wise "github.com/joeblew999/plat-wise"
-	"github.com/joeblew999/plat-wise/commands"
+	wise "github.com/joeblew999/wise-bank"
+	"github.com/joeblew999/wise-bank/commands"
 )
 
 var cmdHelp = map[string]struct {

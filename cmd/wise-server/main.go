@@ -10,8 +10,8 @@ import (
 	"sort"
 	"sync"
 
-	wise "github.com/joeblew999/plat-wise"
-	"github.com/joeblew999/plat-wise/commands"
+	wise "github.com/joeblew999/wise-bank"
+	"github.com/joeblew999/wise-bank/commands"
 
 	"github.com/go-via/via"
 	"github.com/go-via/via-plugin-picocss/picocss"

@@ -1,19 +1,19 @@
-# plat-wise - Wise Banking Platform
+# wise-bank - Wise Banking Platform
 
 Go client for the [Wise API](https://docs.wise.com/api-reference) with CLI, MCP server, and web GUI.
 
-## xplat
+## Tooling
 
-This project uses [xplat](https://github.com/joeblew999/xplat) for task running and process orchestration. See the [xplat CLAUDE.md](../xplat/CLAUDE.md) for conventions on Taskfile structure, variable naming, and process-compose patterns.
+This project uses [mise](https://mise.jdx.dev) for both tool management (Go, nushell) and task running — `mise run <task>` works identically locally and in CI. File operations in tasks use nushell for OS-neutrality. (The old xplat/Taskfile/process-compose setup has been removed.)
 
 ## Important
 
-**Keep Taskfile.yml in sync with the API** - When adding new API endpoints or commands, always update the Taskfile with corresponding tasks.
+**Keep mise.toml in sync with the API** - When adding new API endpoints or commands, always add a corresponding `mise` task.
 
 ## Structure
 
 ```
-plat-wise/
+wise-bank/
 ├── client.go         # HTTP client with services
 ├── oauth.go          # OAuth 2.0 authentication
 ├── errors.go         # API error types
@@ -30,22 +30,80 @@ plat-wise/
 │   ├── wise-cli/     # CLI tool
 │   ├── wise-mcp/     # MCP server for Claude
 │   └── wise-server/  # Web GUI with Via
-├── Taskfile.yml      # Task commands
+├── mise.toml         # Tools (Go, nushell) + task definitions
 ├── API.md            # API coverage documentation
 └── README.md         # Quick start
 ```
 
 ## Architecture
 
-- **API client** (`*.go`) - Reusable library for Wise API
-- **commands** - Shared business logic, returns data structures
-- **wise-cli** - CLI that formats command output for terminal
-- **wise-mcp** - MCP server that formats output for Claude
-- **wise-server** - Web GUI with Via framework (SSE for live updates)
+Three layers, fan-out to three frontends. Everything below `commands` is reusable;
+everything above it is just formatting for a medium.
 
-All tools use the `commands` package to avoid duplication (DRY).
+```
+   frontends    wise-cli        wise-mcp         wise-server      (cmd/*)
+   (thin)       terminal        Claude/MCP       web GUI + SSE
+                    \               |               /
+                     \              |              /
+   shared logic  ── commands package (DRY) ──  returns plain result structs
+   (no I/O fmt)         GetRates / GetProfiles / GetBalances / ...
+                                    |
+   core library  ────────── package wise ──────────  Client + per-domain Services
+                     client.go (one generic Request) + profiles/quotes/rates/...
+                                    |
+                              Wise REST API
+```
+
+### Layer 1 — core library (root package `wise`)
+- `client.go` — a single generic `Request(ctx, method, path, query, body, result)`:
+  marshals JSON, sets `Authorization: Bearer <token>`, executes, and either
+  unmarshals the result or decodes an `APIError` on HTTP >= 400. `Get/Post/Put/Delete`
+  are thin wrappers. Configured with option-functions (`WithSandbox`, `WithTimeout`,
+  `WithHTTPClient`, `WithBaseURL`).
+- **Service-per-domain** (go-github style): `Client` holds `Profiles`, `Quotes`,
+  `Recipients`, `Transfers`, `ExchangeRates`, `Balances` — each a struct wrapping
+  `*Client` with typed methods (e.g. `ExchangeRatesService.List(ctx, params)`).
+  One domain per file (`rates.go`, `profiles.go`, ...).
+- `types.go` — hand-modeled types: `Currency`, `Money`, status/profile enums, and a
+  custom `Timestamp` whose `UnmarshalJSON` tries **7 date formats** because Wise
+  returns inconsistent timestamps.
+
+### Layer 2 — `commands/`
+Shared business logic. Calls the library and returns flat, presentation-free result
+structs (`RateResult`, `ProfileResult`, `BalanceResult`, ...). This is the DRY seam
+that keeps the three frontends from duplicating API logic.
+
+### Layer 3 — frontends (`cmd/*`), each just formats `commands` output
+- **wise-cli** — prints results to the terminal
+- **wise-mcp** — registers MCP tools (`wise_rates`, `wise_profiles`, ...) via
+  `mark3labs/mcp-go`, serves over stdio for Claude
+- **wise-server** — web dashboard (Via framework, SSE for live updates); the only
+  frontend that supports the OAuth path
+
+### Code generation
+**None.** This is a hand-written SDK — no `go:generate`, no OpenAPI/Swagger codegen,
+no `// DO NOT EDIT`. Adding a Wise endpoint = hand-write a method on the relevant
+service (and a `commands` helper + frontend formatting if it should be user-facing).
+Wise does publish an OpenAPI spec, so a generated client is possible, but the
+deliberate choice here is hand-written for clean ergonomics over full coverage.
 
 ## Authentication
+
+Secrets are managed by **fnox** (see `fnox.toml`) and stored in the OS keychain —
+never in the repo or a `.env`. Tasks that hit the API run under `fnox exec`, which
+injects the credentials at run time, scoped per profile (`wise` for the token,
+`oauth` for partner auth) with `--no-defaults` so they stay isolated from the
+global fnox config.
+
+```bash
+mise run secrets:open       # open the Wise pages to create the credentials
+mise run secrets:set        # store WISE_API_TOKEN in the keychain (token auth)
+mise run secrets:set-oauth  # store WISE_CLIENT_ID + WISE_CLIENT_SECRET (OAuth)
+mise run secrets:check      # verify what's configured
+```
+
+The raw environment variables below are what the binaries read — fnox provides
+them. You can still `export` them manually for ad-hoc runs.
 
 ### API Token (Simple)
 ```bash
@@ -95,30 +153,29 @@ OAuth flow:
 ## Tasks
 
 ```bash
-# CLI commands
-task rates         # Get exchange rates
-task profiles      # List profiles
-task balances      # Show balances
-task statements    # Transaction history
-task quote         # Get currency quote
-task rate-history  # Get historical rates
+mise tasks            # list everything
+
+# CLI commands (need WISE_API_TOKEN)
+mise run rates        # Get exchange rates
+mise run profiles     # List profiles
+mise run balances     # Show balances
+mise run statements   # Transaction history
+mise run quote -- -from USD -to EUR -amount 100
+mise run rate-history -- -from EUR -to USD -days 7
 
 # MCP server
-task mcp           # Run MCP server
-task mcp-build     # Build MCP binary
-task mcp-config    # Print Claude Desktop config
+mise run mcp          # Run MCP server
+mise run mcp-build    # Build MCP binary into ./.bin
 
 # Web GUI
-task serve         # Start web dashboard (port 8080)
-task serve-build   # Build web server binary
+mise run serve        # Start web dashboard (port 8080)
+mise run serve-build  # Build web server binary into ./.bin
 
 # Build/Test
-task build         # Build all binaries
-task test          # Run tests
-task clean         # Remove built binaries
-
-# Debug
-task debug         # Print env vars
+mise run build        # Build all binaries into ./.bin
+mise run test         # Run tests
+mise run lint         # go vet
+mise run clean        # Remove built binaries
 ```
 
 ## CLI Help

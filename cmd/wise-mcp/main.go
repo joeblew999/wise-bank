@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	wise "github.com/joeblew999/plat-wise"
-	"github.com/joeblew999/plat-wise/commands"
+	wise "github.com/joeblew999/wise-bank"
+	"github.com/joeblew999/wise-bank/commands"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

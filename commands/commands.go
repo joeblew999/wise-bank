@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	wise "github.com/joeblew999/plat-wise"
+	wise "github.com/joeblew999/wise-bank"
 )
 
 // RateResult holds an exchange rate result.
