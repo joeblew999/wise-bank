@@ -29,11 +29,11 @@ includes = [
 
 [tools]
 # nushell drives OS-neutral file ops + URL opening in tasks; pinned so CI gets it.
-"github:nushell/nushell" = "latest"
+"github:nushell/nushell" = "0.116.0"
 # node powers the OpenAPI 3.1->3.0 normalize pipeline (downconvert + js-yaml).
 node = "24.16.0"
 # restish turns the OpenAPI into a CLI where every Wise endpoint is a command (api:*).
-"go:github.com/rest-sh/restish" = "latest"
+"go:github.com/rest-sh/restish" = "0.21.2"
 # (fnox is a ubiquitous tool from the global mise config — not pinned per-repo.)
 
 [env]
