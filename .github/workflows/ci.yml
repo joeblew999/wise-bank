@@ -1,0 +1,33 @@
+# Build + test on every push to main and every PR. mise installs the pinned
+# toolchain (rust-toolchain.toml / go.mod via idiomatic_version_file_enable_tools)
+# and tools from mise.toml; actions are pinned to commits.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.15
+          cache: true
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test ./...
