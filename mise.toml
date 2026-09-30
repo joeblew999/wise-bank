@@ -17,6 +17,10 @@
 
 # Shared mise task library from joeblew999/.github (by reference, pinned).
 # Brings the `ci`, `mise:*:bootstrap`, etc. tasks. Shape copied from .github-example.
+[settings]
+# go.mod/go.work `toolchain` is the Go pin; this makes `mise install` honour it.
+idiomatic_version_file_enable_tools = ["go"]
+
 [task_config]
 includes = [
   "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=v0.43.0",
@@ -24,7 +28,6 @@ includes = [
 ]
 
 [tools]
-go = "1.26.1"
 # nushell drives OS-neutral file ops + URL opening in tasks; pinned so CI gets it.
 "github:nushell/nushell" = "latest"
 # node powers the OpenAPI 3.1->3.0 normalize pipeline (downconvert + js-yaml).

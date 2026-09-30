@@ -1,6 +1,8 @@
 module github.com/joeblew999/wise-bank
 
-go 1.26.1
+go 1.26.0
+
+toolchain go1.26.1
 
 require (
 	github.com/go-via/via v0.1.4
