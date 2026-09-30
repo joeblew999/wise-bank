@@ -6,7 +6,7 @@ Go library that powers a web GUI.
 
 ## Tooling
 
-This project uses [mise](https://mise.jdx.dev) for both tool management (Go, nushell) and task running — `mise run <task>` works identically locally and in CI. File operations in tasks use nushell for OS-neutrality. (The old xplat/Taskfile/process-compose setup has been removed.)
+This project uses [mise](https://mise.jdx.dev) for both tool management (Go, nushell) and task running — `mise run <task>` runs repository-local tasks. Shared CI has been retired (see MISE-RETIREMENT.md). File operations in tasks use nushell for OS-neutrality. (The old xplat/Taskfile/process-compose setup has been removed.)
 
 ## Important
 
@@ -20,9 +20,6 @@ local workaround, link the issue from the code/commit + memory, and remove the w
 once it's fixed.
 
 This repo depends on (file issues at):
-- **joeblew999/.github** — shared mise task library + reusable CI workflows.
-  (e.g. [#50](https://github.com/joeblew999/.github/issues/50): `mise:repo:bootstrap`
-  hardcodes workflow refs to `@main`; workaround = hand-pin to our tag.)
 - **rest-sh/restish** — the whole-API CLI (`api:*`).
 - **merzzzl/openapi-mcp-server** — the whole-API MCP server (`mcp:openapi`).
 - **@apiture/openapi-down-convert** — the 3.1→3.0 step in `spec:normalize`.

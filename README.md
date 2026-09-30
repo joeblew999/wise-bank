@@ -103,3 +103,8 @@ onboarding, then create a token under that account's
 
 - [Wise API reference](https://docs.wise.com/api-reference)
 - [Auth & security](https://docs.wise.com/guides/developer/auth-and-security)
+
+## Mise workflow retirement
+
+The former shared mise automation is retired. See [MISE-RETIREMENT.md](MISE-RETIREMENT.md)
+for removed commands and CI workflows; `mise.toml` contains the remaining local tasks.
